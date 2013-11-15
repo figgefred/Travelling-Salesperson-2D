@@ -19,15 +19,21 @@ OBJ = $(SRC_FILES:%.cpp=%.o)
 
 all: $(EXE)
 
+cleanall: clean
+	rm -rf bin/
+
 clean: 
-	rm -rf $(BIN)/*
+	rm -rf $(BIN)/
 	rm $(OBJ)
 
-$(EXE): $(OBJ)
+$(EXE): $(OBJ) | $(BIN)
 	$(CC) $(OBJ) $(FLAGS) -o $(BIN)/$(EXE)
 
-$(OBJ): $(SOURCES)
+$(OBJ): $(SOURCES) | $(BIN)
 	$(CC) -c $(SOURCES) $(CCFLAGS) $(FLAGS)
+
+$(BIN): 
+	mkdir -p $(BIN)
 
 run_$(EXE):
 	$(BIN)/$(EXE) $(EXE_ARGS)
