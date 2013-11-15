@@ -23,6 +23,8 @@ vector<coordinate*>* getCitiesFromSTDin();
 vector<int> getPathFromFile(string);
 tour* naiveTspPath();
 void setCost(tour*);
+void printMapMatrix();
+void printMapCities();
 
 int main(int argc, char* argv[])
 {
@@ -33,26 +35,11 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	#ifdef PRINT
-		cout << "\n\nCITIES \n";
-		for(int i = 0; i < count; i++)
-		{
-			cout << "[" << i << "]: (" << cities[i]->x << ", " << cities[i]->y << ") \n";
-		}
-	#endif
-
 	map = new Map(cities);
 
 	#ifdef PRINT
-		cout << "\n\nDISTANCE MATRIX \n";
-		for(int i = 0; i < count; i++)
-		{
-			for(int j = 0; j < count; j++)
-			{
-				cout << map->getDistance(i, j) << " ";
-			}
-			cout << "\n";
-		}
+		printMapCities();
+		printMapMatrix();
 	#endif
 
 	if(argc > 1)
@@ -62,7 +49,8 @@ int main(int argc, char* argv[])
 	
 		#ifdef PRINT
 			cout << "PATH ";
-			for(int i = 0; i < tmp.size(); i++) 
+			int count = tmp.size();
+			for(int i = 0; i < count; i++) 
 			{
 				cout << tmp[i] << " ";
 			}
@@ -76,8 +64,6 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-
-
 	tour* tour = naiveTspPath();
 
 	cout << "\nOPTIMAL COST: " << tour->cost << "\n\n";
@@ -90,6 +76,31 @@ int main(int argc, char* argv[])
 	// Free resources
 	delete map;
 	delete tour;
+}
+
+void printMapCities()
+{
+	cout << "\n\nCITIES \n";
+	vector<coordinate*> cities = map->getCities();
+	int count = map->getCityCount();
+	for(int i = 0; i < count; i++)
+	{
+		cout << "[" << i << "]: (" << cities[i]->x << ", " << cities[i]->y << ") \n";
+	}
+}
+
+void printMapMatrix()
+{
+	cout << "\n\nDISTANCE MATRIX \n";
+	int count = map->getCityCount();
+	for(int i = 0; i < count; i++)
+	{
+		for(int j = 0; j < count; j++)
+		{
+			cout << map->getDistance(i, j) << " ";
+		}
+		cout << "\n";
+	}
 }
 
 void setCost(tour* t)
