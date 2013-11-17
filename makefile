@@ -3,7 +3,7 @@
 # Makefile make me fast and accurate
 
 CC = g++
-FLAGS = -Wall -g
+FLAGS = -Wall -g -std=c++11
 
 EXE = tsp
 EXE_ARGS = input/test_1.in
