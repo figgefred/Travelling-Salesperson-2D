@@ -10,7 +10,7 @@ struct coordinate {
 	double x;
 	double y;
 
-	coordinate (int x1, int y1) {
+	coordinate (double x1, double y1) {
 		x = x1;
 		y = y1;
 	}
