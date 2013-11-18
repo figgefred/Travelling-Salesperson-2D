@@ -3,13 +3,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <unordered_set>
 #include <sstream>
 #include <math.h>
 #include <fstream>
 
 #include "map.h"
 #include "types.h"
+#include "christofides.h"
 
 using namespace std;
 
@@ -26,8 +26,7 @@ tour* naiveTspPath();
 void setCost(tour*);
 void printMapMatrix();
 void printMapCities();
-// Prims algoritm.
-vector<coordinate> minSpanTree();
+
 
 int main(int argc, char* argv[])
 {
@@ -77,7 +76,7 @@ int main(int argc, char* argv[])
 	}
 	
 	cout << "\nMIN Spanning Tree: " << endl;
-	vector<coordinate> tree = minSpanTree();
+	vector<coordinate> tree = minSpanTree(map);
 
 	// Free resources
 	delete map;
@@ -217,60 +216,7 @@ coordinate* newCoordinate(string s)
     return new coordinate(atof(tmp[0].c_str()), atof(tmp[1].c_str()));
 }
 
-// Prims algortihm.
-vector<coordinate> minSpanTree() {
-	vector<coordinate*> cities = map->getCities();
-	// reusing coordinate struct here.
-	vector<coordinate> edges;
-	unordered_set<coordinate*> pickedCities;
-	
-	// find initial edge. Min of first city feels like a good guess..
-	coordinate best(-1,-1);
-	double _min = 100000.0D; // arbitary large number for now.
-	for(unsigned int i = 1; i < cities.size(); ++i)
-	{
-		double dist = map->getDistance(0, i);
-		if(dist < _min) {
-			_min = dist;
-			best = coordinate(0,i);
-		}
-	}
 
-	cout << best.x << "," << best.y <<  " " << _min << endl;	
-	edges.push_back(best);
-	pickedCities.insert(cities[best.x]);
-	pickedCities.insert(cities[best.y]);
-
-	while(pickedCities.size() < cities.size()) {
-		
-		// find min edge (u,v) where u exists in pickedCities and v does not.
-		_min = 1000000.0D;
-		for(unsigned int u = 1; u < cities.size(); ++u)
-		{
-			if(pickedCities.count(cities[u]) > 0)
-				continue;
-				
-			for(unsigned int v = 0; v < cities.size(); ++v) {
-				if(u == v || pickedCities.count(cities[v]) == 0)
-					continue;
-			
-				double dist = map->getDistance(u, v);
-				if(dist < _min) {
-					_min = dist;
-					best = coordinate(u,v);
-				}
-			}
-		}
-		
-		
-		edges.push_back(best);
-		pickedCities.insert(cities[best.x]);
-		cout << best.x << "," << best.y <<  " " << _min << " " << pickedCities.size() << endl;	
-	}
-	
-	
-	return edges;
-}
 
 void print_usage(string output)
 {

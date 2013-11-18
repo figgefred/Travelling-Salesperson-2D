@@ -10,7 +10,7 @@ EXE_ARGS = input/test_1.in
 
 SRC_DIR = src
 INCL = $(SRC_DIR)
-SRC_FILES = tsp.cpp map.cpp
+SRC_FILES = tsp.cpp map.cpp christofides.cpp
 SOURCES = $(SRC_FILES:%.cpp=$(SRC_DIR)/%.cpp)
 CCFLAGS = -I. -I$(INCL)
 
