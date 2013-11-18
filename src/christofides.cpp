@@ -8,9 +8,13 @@ using namespace std;
 
 // http://en.wikipedia.org/wiki/Christofides_algorithm
 tour christofides(Map* map) {
+	cout << "\nMIN Spanning Tree: " << endl;
 	vector<coordinate> tree = minSpanTree(map);
 	
 	int degree_count[map->getCities().size()];
+	for(unsigned int i = 0; i < map->getCities().size(); ++i)
+		degree_count[i] = 0;
+	
 	for(unsigned int i = 0; i < tree.size(); ++i)
 	{
 		coordinate edge = tree[i];
@@ -22,9 +26,15 @@ tour christofides(Map* map) {
 	
 	vector<coordinate*> odd_degree_cities;
 	for(unsigned int i = 0; i < map->getCities().size(); i++)
-		if(degree_count[i] % 2 == 1)
+		if(degree_count[i] % 2 == 1) {
+			cout << i << endl;
 			odd_degree_cities.push_back(map->getCities()[i]);
+		}
 
+	vector<int> p;
+	double c = 0.5d;
+	tour t(p, c);
+	return t;
 	
 }
 

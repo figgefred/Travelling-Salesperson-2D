@@ -75,8 +75,8 @@ int main(int argc, char* argv[])
 		cout << tour->path[i] << "\n";
 	}
 	
-	cout << "\nMIN Spanning Tree: " << endl;
-	vector<coordinate> tree = minSpanTree(map);
+	
+	christofides(map);
 
 	// Free resources
 	delete map;
