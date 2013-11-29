@@ -68,3 +68,20 @@ void Map::setDistanceMatrix()
 		}
 	}
 }
+
+double Map::getTourDistance(vector<int>* nodes)
+{
+	double c = 0;
+	int N = (*nodes).size();
+	for(int i = 1; i < N; i++)
+	{
+		c += getDistance((*nodes)[i-1], (*nodes)[i]);
+	}
+	c += getDistance((*nodes)[N-1], (*nodes)[0]);
+	return c;
+}
+
+void Map::setTourDistance(tour* t)
+{
+	t->cost = getTourDistance(&(t->path));
+}

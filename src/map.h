@@ -17,6 +17,10 @@ class Map
 		int getCityCount();
 		double getDistance(int, int);
 		coordinate* getCityCoordinate(int);
+		void setTourDistance(tour*);
+		double getTourDistance(std::vector<int>*);
+
+
 };
 
 #define _MAP
