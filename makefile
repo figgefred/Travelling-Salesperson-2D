@@ -14,7 +14,7 @@ SOURCES = $(SRC_FILES:%.cpp=$(SRC_DIR)%.cpp)
 CCFLAGS = -I. -I$(INCL)
 
 BIN = bin/
-OBJ = $(SOURCES:$(SRC_DIR)%.cpp=%.o)
+OBJ = $(SOURCES:$(SRC_DIR)%.cpp=obj/%.o)
 
 
 
@@ -32,6 +32,7 @@ $(EXE): $(OBJ) | $(BIN)
 
 $(OBJ): $(SOURCES) | $(BIN)
 	$(CC) -c $(SOURCES) $(CCFLAGS) $(FLAGS)
+	mv *.o obj/
 
 $(BIN): 
 	mkdir -p $(BIN)

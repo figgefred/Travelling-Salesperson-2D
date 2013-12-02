@@ -16,7 +16,7 @@ def createTest(filename):
 
 if len(sys.argv) < 2:
 	print """
-	USAGE: mktests.py <number of tests> <directory>
+	USAGE: mktests.py <number of tests>
 	"""
 	exit(1)
 	
