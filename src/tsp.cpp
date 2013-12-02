@@ -17,6 +17,7 @@ using namespace std;
 
 //#define PRINT
 #define KATTIS
+//#define DEBUG_TRACE
 
 //double** distance_mat;
 Map* map;
@@ -45,12 +46,20 @@ int main(int argc, char* argv[])
 
 	#ifdef PRINT
 		printMapCities();
-		cout << "DONE CITIES! \n";
+		cout << "DONE CITIES!" << endl;
 		printMapMatrix();
-		cout << "DONE PRINT! \n";
+		cout << "DONE PRINT!" << endl;
+	#endif
+	
+	#ifdef DEBUG_TRACE
+		cout << "Done parsing" << endl;
 	#endif
 	
 	tour* curr_tour= naiveTspPath();
+	
+	#ifdef DEBUG_TRACE
+		cout << "Done Touring" << endl;
+	#endif
 
 	#ifdef PRINT
 		cout << "\nNaive path: \n";
@@ -155,45 +164,34 @@ tour* naiveTspPath()
 	tour* newTour = new tour(N);
 	
 	//t[0] = 0;
-	newTour->path[0] = 0;
-
-	double cost;
+	newTour->path[0] = 0;	
 	double totalcost = 0.0;
-
-	int best;
-	double d;
+	
 	for(int i = 1; i < N; i++)
 	{
-		best = -1;
-		cost = 2147483647;
+		int best = -1;
+		double cost = 2147483647;
+		
 		for(int j = 0; j < N; j++)
 		{
-			if(i-1 == j)
+			if(used[j] || newTour->path[i-1] == j)
 				continue;
-			d = map->getDistance(newTour->path[i-1], j);
-
-			/*if(i == 8)
-			{
-				cout << "i = " << i << ", i-1 = " << (i-1) << " j = " << j << " d " << d << " currCost = " << cost;
-				cout << "used is " << used[j];
-				cout << " BADAM!! \n\n";
-			}*/
-
-			//s	if(!used[j] && (best == -1 || d > cost))
-			if(!used[j] && (best == -1 || d < cost))
+			
+			double d = map->getDistance(newTour->path[i-1], j);
+			
+			if(best == -1 || d < cost)
 			{
 				best = j;
 				cost = d;
 			}
 		}
+		#ifdef DEBUG_TRACE
+			cout << "Best " << best << endl;
+			cout << "Cost " << cost << endl;
+		#endif
 		newTour->path[i] = best;
 		used[best] = true;
 		totalcost += cost;
-		
-		/*if(best == -1) {
-			cout << "i = " << i << " ";
-			cout << " BADAM!! \n\n";
-		}*/
 	}
 
 	// Add last step back to origin
