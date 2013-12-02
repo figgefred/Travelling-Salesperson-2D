@@ -1,14 +1,16 @@
 #!/usr/bin/python
 
-import runtest, sys
-from os import walk
-
 '''
 Runs all tests found in the tests folder.
 '''
 
-testdir = "tests/"
+import runtest, sys, time
+from os import walk
+from threading import Thread
+from Queue import Queue
 
+num_threads = 4
+testdir = "tests/"
 
 if len(sys.argv) < 2:
 	print """
@@ -16,31 +18,45 @@ if len(sys.argv) < 2:
 	"""
 	exit(1)
 
-f = []
+q = Queue()
 for (dirpath, dirnames, filenames) in walk(testdir):
-    f.extend(filenames)
+	for test in filenames:
+		if test != ".gitignore":
+			q.put(test)
     
-if len(f) == 0:
+if q.empty():
 	print "No tests found! Please run mktests.py"
 	exit(1)
-
-print "Found", len(f)-1, "tests."	
-
-distances = [0] * (len(f)-1)
-times = [0] * (len(f)-1)
+	
+print "Found", q.qsize(), "tests."
+distances = [0] * (q.qsize())
+times = [0] * (q.qsize())
 errors = list()
-for test in f:
-	if test == ".gitignore":
-		continue
-	print "Running test:", test	
-	try:		
-		t = int(test)
-		distance, time = runtest.runtest(sys.argv[1], testdir+str(t))
-		distances[t] = distance
-		times[t] = time		
-	except Exception as ex:
-		errors.append(test + ": " + ex)
+
+def Work():
+	while not q.empty():
+		test = q.get()		
+		#print "Running test:", test	
+		try:		
+			t = int(test)
+			distance, time = runtest.runtest(sys.argv[1], testdir+str(t))
+			distances[t] = distance
+			times[t] = time		
+		except Exception as ex:
+			errors.append(test + ": " + str(ex))
+		q.task_done()
 		
+for _ in range(num_threads):
+	t = Thread(target=Work)
+	t.daemon = True
+	t.start()
+	
+while not q.empty():
+	time.sleep(1) # yield
+	print "Queue left: ", q.qsize()
+
+
+			
 
 for i in range(len(times)):
 	print str(i)+","+str(distances[i])+","+str(times[i])
