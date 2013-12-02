@@ -18,9 +18,13 @@ def runtest(executable, test):
 		positions.append(pos)
 		
 	stdout, stderr = p.communicate(input=data)
+	if stderr or stdout == "":
+		print "Error: ", stderr
+		exit(1)		
+	endtime = time.clock() - starttime
 	# validate answer
 	path = [int(l) for l in stdout.split("\n") if l != ""]
-	return getPathDistance(positions, path), time.clock() - starttime
+	return getPathDistance(positions, path), endtime
 	
 def getPathDistance(positions, path):
 	distance = 0.0
