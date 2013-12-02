@@ -7,6 +7,7 @@ class Map
 {
 		double** distance_mat;
 		std::vector<coordinate*> cities;
+		int dim;
 
 		double calculateDistance(coordinate*, coordinate*);
 		void setDistanceMatrix();
@@ -14,7 +15,7 @@ class Map
 		Map (std::vector<coordinate*>);
 		~Map();
 		std::vector<coordinate*> getCities();
-		int getCityCount();
+		int getDimension();
 		double getDistance(int, int);
 		coordinate* getCityCoordinate(int);
 		void setTourDistance(tour*);

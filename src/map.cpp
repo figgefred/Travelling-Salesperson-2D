@@ -1,4 +1,4 @@
-
+#include <iostream>
 #include <math.h>
 #include <vector>
 
@@ -11,11 +11,16 @@ using namespace std;
 Map::Map (vector<coordinate*> cities)
 {
 	this->cities = cities;
+	dim = cities.size();
 	setDistanceMatrix();
 }
 
 Map::~Map()
 {
+	for(int i = 0; i < dim; i++)
+	{
+		delete distance_mat[i];
+	}
 	delete distance_mat;
 }
 
@@ -26,12 +31,17 @@ vector<coordinate*> Map::getCities()
 
 double Map::getDistance(int i, int j)
 {
+	if(i >= dim || j >= dim)
+	{
+		std::cout << "NOOOOOOOOOOOOOOOO! \n\n";
+		return -1;
+	}
 	return distance_mat[i][j];
 }
 
-int Map::getCityCount()
+int Map::getDimension()
 {
-	return cities.size();
+	return dim;
 }
 	
 coordinate* Map::getCityCoordinate(int i)
@@ -48,16 +58,15 @@ double Map::calculateDistance(coordinate* c1, coordinate* c2)
 
 void Map::setDistanceMatrix()
 {
-	int count = getCityCount();
-	distance_mat = new double*[count];
-	for(int i = 0; i < count; i++)
+	distance_mat = new double*[dim];
+	for(int i = 0; i < dim; i++)
 	{
-		distance_mat[i] = new double[count];
+		distance_mat[i] = new double[dim];
 	}
 
-	for(int i = 0; i < count; i++)
+	for(int i = 0; i < dim; i++)
 	{
-		for(int j = i; j < count; j++)
+		for(int j = i; j < dim; j++)
 		{
 			if(i == j)
 				continue;

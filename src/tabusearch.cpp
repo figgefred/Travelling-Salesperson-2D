@@ -10,14 +10,14 @@
 
 using namespace std;
 
-TabuSearch::TabuSearch(Map* m, vector<coordinate*> c)
+TabuSearch::TabuSearch(Map* m)
 {
 	map = m;
-	cities = c;
-	int count = cities.size();
+	int count = m->getDimension();
+	tabulist = vector<int*>(count);
 	for(int i = 0; i < count; i++)
 	{
-		tabulist.push_back( new int[count] );
+		tabulist[i] = new int[count];
 	}
 }
 
@@ -85,14 +85,16 @@ tour* TabuSearch::getBetterTour(tour* t)
 				tour* tmp = bestTour;
 				bestTour = tourCandidate;
 
-		cout << bestTour->path[0];
-		for(int i = 1; i < count; i++)
-		{
-			cout << " -> " << bestTour->path[i];
-		}
-		cout << "\n";
-		cout << "COST: " << bestTour->cost << "\n";
-				
+				#ifdef PRINT
+					cout << bestTour->path[0];
+					for(int i = 1; i < count; i++)
+					{
+						cout << " -> " << bestTour->path[i];
+					}
+					cout << "\n";
+					cout << "COST: " << bestTour->cost << "\n";
+				#endif
+
 				delete tmp;
 			}
 			else

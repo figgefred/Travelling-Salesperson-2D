@@ -2,7 +2,7 @@
 # Makefile make me fast and accurate
 
 CC = g++
-FLAGS = -Wall -g -std=c++11
+FLAGS = -g -static -O2 -std=gnu++0x  -Wall -Wextra -Wformat=2
 
 EXE = tsp
 EXE_ARGS = input/test_1.in
@@ -25,6 +25,7 @@ cleanall: clean
 
 clean: 
 	rm -rf $(BIN)*
+	rm -f $(OBJ)
 
 $(EXE): $(OBJ) | $(BIN)
 	$(CC) $(OBJ) $(CCFLAGS) $(FLAGS) -o $(BIN)$(EXE)

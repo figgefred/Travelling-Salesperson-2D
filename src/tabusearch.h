@@ -11,7 +11,7 @@ class TabuSearch : public LocalSearch
 		void swap(int city1, int city2, tour*);
 
 	public:
-		TabuSearch(Map*, std::vector<coordinate*>);
+		TabuSearch(Map*);
 		virtual ~TabuSearch();
 		virtual tour* getBetterTour(tour*);
 		virtual void reset();

@@ -8,7 +8,6 @@ class LocalSearch
 {
 	protected:
 		Map* map;
-		std::vector<coordinate*> cities;
 	public:
 		virtual ~LocalSearch(){};
 		virtual tour* getBetterTour(tour*) = 0;

@@ -15,8 +15,8 @@
 
 using namespace std;
 
-#define PRINT
-//#define KATTIS
+//#define PRINT
+#define KATTIS
 
 //double** distance_mat;
 Map* map;
@@ -41,36 +41,15 @@ int main(int argc, char* argv[])
 	}
 
 	map = new Map(cities);
-	local_search = new TabuSearch(map, cities);
-
+	local_search = new TabuSearch(map);
 
 	#ifdef PRINT
 		printMapCities();
+		cout << "DONE CITIES! \n";
 		printMapMatrix();
+		cout << "DONE PRINT! \n";
 	#endif
-
-	if(argc > 1)
-	{
-		vector<int> tmp = getPathFromFile(argv[1]);
-		tour* t = new tour(tmp, 0);
 	
-		#ifdef PRINT
-			cout << "PATH ";
-			count = tmp.size();
-			for(int i = 0; i < count; i++) 
-			{
-				cout << tmp[i] << " ";
-			}
-			cout << "\n";
-		#endif
-
-		map->setTourDistance(t);
-		cout << "\nCost of path is " << t->cost << "\n";
-
-		delete t;
-		exit(0);
-	}
-
 	tour* curr_tour= naiveTspPath();
 
 	#ifdef PRINT
@@ -78,15 +57,22 @@ int main(int argc, char* argv[])
 		printTour(curr_tour);
 	#endif
 
-	tour* better_tour = local_search->getBetterTour(curr_tour);
-	if(better_tour->cost < curr_tour->cost)
+	bool done = false;
+/*	int max = 10;
+	int counter = 1;
+	while(!done && counter < max)
 	{
-		delete curr_tour;
-		curr_tour= better_tour;
-	}
-	else
-	{
-		delete better_tour;
+		tour* better_tour = local_search->getBetterTour(curr_tour);
+		if(better_tour->cost < curr_tour->cost)
+		{
+			delete curr_tour;
+			curr_tour= better_tour;
+		}
+		else
+		{
+			done = true;
+		}
+		counter++;
 	}
 	#ifdef PRINT
 		cout << "\nLocal search path: \n";
@@ -96,6 +82,8 @@ int main(int argc, char* argv[])
 #ifndef KATTIS
 	cout << "End result: \n";
 #endif
+*/
+
 	printTour(curr_tour);
 
 	
@@ -131,7 +119,7 @@ void printMapCities()
 {
 	cout << "\n\nCITIES \n";
 	vector<coordinate*> cities = map->getCities();
-	int count = map->getCityCount();
+	int count = map->getDimension();
 	for(int i = 0; i < count; i++)
 	{
 		cout << "[" << i << "]: (" << cities[i]->x << ", " << cities[i]->y << ") \n";
@@ -141,7 +129,7 @@ void printMapCities()
 void printMapMatrix()
 {
 	cout << "\n\nDISTANCE MATRIX \n";
-	int count = map->getCityCount();
+	int count = map->getDimension();
 	for(int i = 0; i < count; i++)
 	{
 		for(int j = 0; j < count; j++)
@@ -155,41 +143,64 @@ void printMapMatrix()
 // Kattis naive algorithm: https://kth.kattis.scrool.se/problems/oldkattis:tsp
 tour* naiveTspPath()
 {
-	int N = map->getCityCount();
+	int N = map->getDimension();
 	bool used[N];
 
-	vector<int> t(N, N);
-
+	// Init array
+	for(int i = 1; i < N; i++)
+	{
+		used[i] = false;
+	}
 	used[0] = true;
-	t[0] = 0;
+	tour* newTour = new tour(N);
+	
+	//t[0] = 0;
+	newTour->path[0] = 0;
 
 	double cost;
-	double totalcost = 0;
+	double totalcost = 0.0;
 
 	int best;
 	double d;
 	for(int i = 1; i < N; i++)
 	{
 		best = -1;
-		cost = 0;
+		cost = 2147483647;
 		for(int j = 0; j < N; j++)
 		{
-			d = map->getDistance(t[i-1], j);
+			if(i-1 == j)
+				continue;
+			d = map->getDistance(newTour->path[i-1], j);
+
+			/*if(i == 8)
+			{
+				cout << "i = " << i << ", i-1 = " << (i-1) << " j = " << j << " d " << d << " currCost = " << cost;
+				cout << "used is " << used[j];
+				cout << " BADAM!! \n\n";
+			}*/
+
+			//s	if(!used[j] && (best == -1 || d > cost))
 			if(!used[j] && (best == -1 || d < cost))
-	//s	if(!used[j] && (best == -1 || d > cost))
 			{
 				best = j;
 				cost = d;
 			}
 		}
-		t[i] = best;
+		newTour->path[i] = best;
 		used[best] = true;
 		totalcost += cost;
+		
+		/*if(best == -1) {
+			cout << "i = " << i << " ";
+			cout << " BADAM!! \n\n";
+		}*/
 	}
 
 	// Add last step back to origin
-	totalcost += map->getDistance(t[N-1], t[0]);
-	return new tour(t, totalcost);
+	totalcost += map->getDistance(newTour->path[N-1], newTour->path[0]);
+	newTour->cost = totalcost;
+	//exit(0);
+	return newTour;
 }
 
 vector<int> getPathFromFile(string filename)

@@ -20,10 +20,17 @@ struct tour {
 
 	double cost;
 	std::vector<int> path;
+	
+	tour(int n) {
+		path = std::vector<int>(n, n);
+		cost = 0.0;
+	}
+
 	tour(std::vector<int> p) {
 		path = p;
 		cost = 0.0;
 	}
+
 	tour(std::vector<int> p, double c) {
 		path = p;
 		cost = c;
