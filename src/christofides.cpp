@@ -20,8 +20,10 @@ tour christofides(Map* map) {
 		coordinate edge = tree[i];
 		int x = (int) edge.x;
 		int y = (int) edge.y;
-		degree_count[x] = degree_count[x]++;
-		degree_count[y] = degree_count[y]++;
+		int xcount = degree_count[x];
+		int ycount = degree_count[y];
+		degree_count[x] = xcount+1;
+		degree_count[y] = ycount+1;
 	}
 	
 	vector<coordinate*> odd_degree_cities;
