@@ -18,8 +18,8 @@ class Map
 		int getDimension();
 		double getDistance(int, int);
 		coordinate* getCityCoordinate(int);
-		void setTourDistance(tour*);
-		double getTourDistance(std::vector<int>*);
+		//~ void setTourDistance(tour*);
+		double getTourDistance(std::vector<int>&);
 		double getTourDistance(tour* t);
 
 

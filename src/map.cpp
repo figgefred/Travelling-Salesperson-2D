@@ -31,10 +31,14 @@ vector<coordinate*> Map::getCities()
 
 double Map::getDistance(int i, int j)
 {
-	if(i >= dim || j >= dim)
+	// Får hellre segfault just nu...	
+	if(i < 0 || j < 0 || i >= dim || j >= dim)
 	{
-		std::cout << "NOOOOOOOOOOOOOOOO! \n\n";
-		return -1;
+		std::cout << "i or j out of bounds when fetching distance!!" << std::endl;
+		std::cout << i << std::endl;
+		std::cout << j << std::endl;
+		std::cout << dim << std::endl;
+		//~ return -1;
 	}
 	return distance_mat[i][j];
 }
@@ -78,23 +82,24 @@ void Map::setDistanceMatrix()
 	}
 }
 
-double Map::getTourDistance(vector<int>* nodes)
+double Map::getTourDistance(vector<int>& nodes)
 {
+	//~ cout << "Getting tour distance" << endl;
 	double c = 0;
-	int N = (*nodes).size();
+	int N = nodes.size();
 	for(int i = 1; i < N; i++)
 	{
-		c += getDistance((*nodes)[i-1], (*nodes)[i]);
+		c += getDistance(nodes[i-1], nodes[i]);
 	}
-	c += getDistance((*nodes)[N-1], (*nodes)[0]);
+	c += getDistance(nodes[N-1], nodes[0]);
 	return c;
 }
 
 double Map::getTourDistance(tour* t) {
-	return getTourDistance(&(t->path));
+	return getTourDistance(t->path);
 }
 
-void Map::setTourDistance(tour* t)
-{
-	t->cost = getTourDistance(&(t->path));
-}
+//~ void Map::setTourDistance(tour* t)
+//~ {
+	//~ t->cost = getTourDistance(t->path);
+//~ }

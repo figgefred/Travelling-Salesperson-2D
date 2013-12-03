@@ -13,6 +13,7 @@
 #include "localsearch.h"
 #include "tabusearch.h"
 #include "naivegreedy.h"
+#include "2opt.h"
 
 using namespace std;
 
@@ -33,14 +34,14 @@ void printMapCities();
 int main(int argc, char* argv[])
 {
 	vector<coordinate*> cities = *(getCitiesFromSTDin());
-	int count = cities.size();
 	if(cities.size() == 0)
 	{
 		exit(0);
 	}
 
 	map = new Map(cities);
-	LocalSearch* local_search = new TabuSearch(map);
+	//~ LocalSearch* local_search = new TabuSearch(map);
+	LocalSearch* local_search = new TwoOpt(map);
 	NaiveGreedy greedy;
 
 	#ifdef PRINT
@@ -65,6 +66,7 @@ int main(int argc, char* argv[])
 		printTour(curr_tour);
 	#endif
 
+	/*
 	bool done = false;
 	int max = 2;
 	int counter = 0;
@@ -82,6 +84,8 @@ int main(int argc, char* argv[])
 		}
 		counter++;
 	}
+	* */
+	curr_tour = local_search->getBetterTour(curr_tour);
 
 	printTour(curr_tour);
 
