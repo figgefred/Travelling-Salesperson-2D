@@ -29,12 +29,22 @@ def runtest(executable, test):
 def getPathDistance(positions, path):
 	distance = 0.0
 	prevPos = positions[path[0]]
+	visited = set()
+	visited.add(path[0])
 	for next in path[1:]:		
+		if next in visited:
+			print "Error: validation failed. Revisited the same node! "
+			exit(1)
+		visited.add(next)
 		nextPos = positions[next]
 		distance += math.sqrt(abs(prevPos[0] - nextPos[0])**2 + abs(prevPos[1] - nextPos[1])**2)
 		#print nextPos
 		prevPos = nextPos
-		
+	
+	# check so all nodes were visited.
+	if len(visited) != len(positions):
+		print "Error: validation failed. Did not visit all nodes!"
+		exit(1)
 	distance += math.sqrt(abs(prevPos[0] - positions[path[0]][0])**2 + abs(prevPos[1] - positions[path[0]][1])**2)
 	return distance
 	
@@ -45,6 +55,7 @@ def testTheTest():
 	assert(2.0 == getPathDistance([p, p2], [0, 1]))	
 	assert(math.sqrt(8.0)*2 == getPathDistance([p, p3], [0, 1]))
 	assert(math.sqrt(1) + math.sqrt(5) + math.sqrt(8.0) == getPathDistance([p, p2, p3], [0, 1, 2]))
+	
 	
 	
 
