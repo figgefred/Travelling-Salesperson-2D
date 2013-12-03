@@ -97,9 +97,9 @@ int main(int argc, char* argv[])
 //	christofides(map);
 
 	// Free resources
-	delete local_search;
-	delete map;
-	delete curr_tour;
+	//~ delete local_search;
+	//~ delete map;
+	//~ delete curr_tour;
 }
 
 void printMapCities()

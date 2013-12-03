@@ -4,7 +4,7 @@ import os, sys, subprocess, math, time
 timeout = 2000
 
 def runtest(executable, test):		
-	starttime = time.clock()
+	starttime = time.time()
 	p = subprocess.Popen([executable], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 	f = open(test)
 	data = ""
@@ -21,10 +21,15 @@ def runtest(executable, test):
 	if stderr or stdout == "":
 		print "Error: ", stderr
 		exit(1)		
-	endtime = time.clock() - starttime
-	# validate answer
+		
+	endtime = time.time() - starttime
 	path = [int(l) for l in stdout.split("\n") if l != ""]
-	return getPathDistance(positions, path), endtime
+	dist = getPathDistance(positions, path)
+	if endtime >= 2.0:
+		print "Error: time limit exceeded", endtime
+		print "Answer was still valid: ", dist, endtime
+		exit(1)
+	return dist, endtime
 	
 def getPathDistance(positions, path):
 	distance = 0.0
@@ -55,9 +60,6 @@ def testTheTest():
 	assert(2.0 == getPathDistance([p, p2], [0, 1]))	
 	assert(math.sqrt(8.0)*2 == getPathDistance([p, p3], [0, 1]))
 	assert(math.sqrt(1) + math.sqrt(5) + math.sqrt(8.0) == getPathDistance([p, p2, p3], [0, 1, 2]))
-	
-	
-	
 
 
 if __name__ == '__main__':
@@ -69,8 +71,10 @@ if __name__ == '__main__':
 		the path found and time taken.
 		"""
 		exit(1)
+	#print time.time()
 	testTheTest()
 	print runtest(sys.argv[1], sys.argv[2])
+	#print time.time()
 	
 	
 	

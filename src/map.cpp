@@ -32,14 +32,16 @@ vector<coordinate*> Map::getCities()
 double Map::getDistance(int i, int j)
 {
 	// Får hellre segfault just nu...	
-	if(i < 0 || j < 0 || i >= dim || j >= dim)
-	{
-		std::cout << "i or j out of bounds when fetching distance!!" << std::endl;
-		std::cout << i << std::endl;
-		std::cout << j << std::endl;
-		std::cout << dim << std::endl;
+	// Den här funktionen körs flera gånger i swap för både tabu och 2opt. Vilket är längst ner i O(n^2) skiten	
+	// Jämförelserna tar alltså extra tid!!!!!
+	//~ if(i < 0 || j < 0 || i >= dim || j >= dim)
+	//~ {
+		//~ std::cout << "i or j out of bounds when fetching distance!!" << std::endl;
+		//~ std::cout << i << std::endl;
+		//~ std::cout << j << std::endl;
+		//~ std::cout << dim << std::endl;
 		//~ return -1;
-	}
+	//~ }
 	return distance_mat[i][j];
 }
 
