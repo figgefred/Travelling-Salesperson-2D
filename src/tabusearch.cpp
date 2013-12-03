@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 
+
 #include "types.h"
 #include "map.h"
 #include "tabusearch.h"
@@ -18,6 +19,10 @@ TabuSearch::TabuSearch(Map* m)
 	for(int i = 0; i < count; i++)
 	{
 		tabulist[i] = new int[count];
+		for(int j = 0; j < count; j++)
+		{
+			tabulist[i][j] = 0;
+		}
 	}
 }
 
@@ -33,13 +38,72 @@ TabuSearch::~TabuSearch()
 // Private
 
 //swaps two cities
-void TabuSearch::swap(int cityIndex1, int cityIndex2, tour* t)
+void TabuSearch::swap(int i1, int i2, tour* t)
 {
-    int tmp = t->path[cityIndex1];
-    t->path[cityIndex1] = t->path[cityIndex2];
-    t->path[cityIndex2] = tmp;
+	int left1 = i1-1;
+	int right1 = i1+1;
+	int left2 = i2-1;
+	int right2 = i2+1;
 
-    map->setTourDistance(t);
+	int lastIndex = map->getDimension()-1;
+	
+
+	// First remove old costs.
+//	cout << "Cost is " << t->cost << endl;
+
+	if(i1 == lastIndex)
+	{
+		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
+		t->cost -= map->getDistance(t->path[0], t->path[i1]);
+		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
+		t->cost -= map->getDistance(t->path[right2], t->path[i2]);
+	}
+	else if( i2 == lastIndex)
+	{
+		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
+		t->cost -= map->getDistance(t->path[right1], t->path[i1]);
+		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
+		t->cost -= map->getDistance(t->path[0], t->path[i2]);
+	}
+	else
+	{
+		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
+		t->cost -= map->getDistance(t->path[right1], t->path[i1]);
+		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
+		t->cost -= map->getDistance(t->path[right2], t->path[i2]);
+	}
+
+//	cout << "Cost after reduce is " << t->cost << endl;
+	// Do switch
+    int tmp = t->path[i1];
+    t->path[i1] = t->path[i2];
+    t->path[i2] = tmp;
+
+    // Now recalculate costs
+    if(i1 == lastIndex)
+	{ 
+		t->cost += map->getDistance(t->path[left1], t->path[i1]);
+		t->cost += map->getDistance(t->path[0], t->path[i1]);
+		t->cost += map->getDistance(t->path[left2], t->path[i2]);
+		t->cost += map->getDistance(t->path[right2], t->path[i2]);
+	}
+	else if(i2 == lastIndex)
+	{
+		t->cost += map->getDistance(t->path[left1], t->path[i1]);
+		t->cost += map->getDistance(t->path[right1], t->path[i1]);
+		t->cost += map->getDistance(t->path[left2], t->path[i2]);
+		t->cost += map->getDistance(t->path[0], t->path[i2]);
+	}
+	else
+	{
+		t->cost += map->getDistance(t->path[left1], t->path[i1]);
+		t->cost += map->getDistance(t->path[right1], t->path[i1]);
+		t->cost += map->getDistance(t->path[left2], t->path[i2]);
+		t->cost += map->getDistance(t->path[right2], t->path[i2]);
+	}
+
+//	cout << "Recalculated cost is " << t->cost << endl;
+//	cout << endl;
 }
 
 
@@ -64,28 +128,31 @@ tour* TabuSearch::getBetterTour(tour* t)
 
 	for(int i = 1; i < count; i++)
 	{
+		//cout << "Index " << i << endl;
 		for(int j = 1; j < count; j++)
 		{
 			if(i == j)
 				continue;
 
 			// Copy current best
-			tour* tourCandidate = new tour(vector<int>(count));
-			for(int i = 0; i <count ; i++ )
+			//tour* tourCandidate = new tour(vector<int>(count));
+			/*for(int k = 0; k <count ; k++ )
 			{
-				tourCandidate->path[i] = bestTour->path[i];
+				tourCandidate->path[k] = bestTour->path[k];
 			}
-			swap(i, j, tourCandidate);
+			swap(i, j, tourCandidate);*/
+			if(tabulist[i][j] != 0)
+				continue;
 
-			if(bestTour->cost > tourCandidate->cost && tabulist[i][j] == 0)
+			double oldDistance = bestTour->cost;
+			swap(i, j, bestTour);
+			if(oldDistance > bestTour->cost)
 			{
 				firstNeighbour = false;
 				city1 = i;
 				city2 = j;
-				tour* tmp = bestTour;
-				bestTour = tourCandidate;
 
-				#ifdef PRINT
+				#ifdef DEBUG_TRACE
 					cout << bestTour->path[0];
 					for(int i = 1; i < count; i++)
 					{
@@ -94,13 +161,12 @@ tour* TabuSearch::getBetterTour(tour* t)
 					cout << "\n";
 					cout << "COST: " << bestTour->cost << "\n";
 				#endif
-
-				delete tmp;
 			}
 			else
 			{
-				delete tourCandidate;
-			}
+				// Swap back as this was not a good switch
+				swap(i, j, bestTour);
+			}		
 		}
 	}
 	if(city1 == 0)
