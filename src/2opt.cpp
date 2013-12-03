@@ -11,22 +11,19 @@ TwoOpt::TwoOpt(Map* map) {
 
 // From wikipedia psuedocode:
 // http://en.wikipedia.org/wiki/2-opt
-tour* TwoOpt::swap(tour* t, int from, int to)
-{
-	tour* newTour = new tour(0);
+tour* TwoOpt::swap(tour* t, tour* newTour, int from, int to)
+{	
+	newTour->path.clear();
 	//  1. take route[0] to route[i-1] and add them in order to new_rout
 	for(int i = 0; i < from; ++i) {
-		newTour->path.push_back(t->path[i]);
-		//~ cout << t->path[i] << endl;
+		newTour->path.push_back(t->path[i]);		
 	}
 	// 2. take route[i] to route[k] and add them in reverse order to new_route
-	for(int i = to; i >= from; --i) {
-		//~ cout << t->path[i] << endl;
+	for(int i = to; i >= from; --i) {		
 		newTour->path.push_back(t->path[i]);
 	}
 	// 3. take route[k+1] to end and add them in order to new_route
-	for(int i = to+1; i < t->path.size(); ++i) {
-		//~ cout << t->path[i] << endl;
+	for(unsigned int i = to+1; i < t->path.size(); ++i) {		
 		newTour->path.push_back(t->path[i]);
 	}
 	
@@ -39,39 +36,40 @@ tour* TwoOpt::swap(tour* t, int from, int to)
 	return newTour;	
 }
 
-tour* TwoOpt::findNewTour(tour* t) {
-	tour* bestPossibleNewRoute = NULL;
-	for(int i = 1; i < t->path.size(); ++i)
+tour* TwoOpt::findNewTour(tour* t, tour* newTour) {
+	//~ cout << t->cost << " " << newTour->cost << endl;
+	for(unsigned int i = 1; i < t->path.size(); ++i)
 	{
-		for(int j = i+1; j < t->path.size(); ++j)
+		for(unsigned int j = i+1; j < t->path.size(); ++j)
 		{
-			tour* newPossibleRoute = swap(t, i, j);
+			newTour = swap(t, newTour, i, j);
 						
-			if(newPossibleRoute->cost < t->cost && (bestPossibleNewRoute == NULL || newPossibleRoute->cost < bestPossibleNewRoute->cost)) {
-				bestPossibleNewRoute = newPossibleRoute;
-			} else {
-				// memory leak?
-				delete newPossibleRoute;	
-			}
-			
-		}		 
+			if(newTour->cost < t->cost)
+				return newTour;							
+		}		
+		//~ cout << i << endl; 
 	}	
-	
-	return bestPossibleNewRoute;	
+	return NULL;	
 }
 
 tour* TwoOpt::getBetterTour(tour* t)
-{
-	while(true) {
+{	
+	tour* newTour = new tour(0);
+	for(int i = 0; i < 10; i++) {
 		//~ double best = map->getTourDistance(t);
-		tour* newTour = findNewTour(t);
+		newTour = findNewTour(t, newTour);
 		
 		if(newTour == NULL)		
 			break;
+		
+		cout << t << " " << newTour << " " << t->cost << " " << newTour->cost << " " << newTour->path.size() << endl;
 			
-		delete t;
-		t = newTour;		
-		cout << t->cost << endl;
+		t->path.clear();
+		for(unsigned int i = 0; i < newTour->path.size(); i++) {
+			t->path.push_back(newTour->path[i]);
+			t->cost = newTour->cost;
+		}	
+					
 	}
 	
 	return t;	
