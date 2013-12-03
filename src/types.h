@@ -41,6 +41,7 @@ struct tour {
 };
 
 coordinate* newCoordinate(std::string);
+void printTour(tour*);
 
 #endif
 

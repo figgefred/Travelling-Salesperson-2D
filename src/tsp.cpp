@@ -12,6 +12,7 @@
 #include "christofides.h"
 #include "localsearch.h"
 #include "tabusearch.h"
+#include "naivegreedy.h"
 
 using namespace std;
 
@@ -19,17 +20,14 @@ using namespace std;
 #define KATTIS
 //#define DEBUG_TRACE
 
-//double** distance_mat;
 Map* map;
-LocalSearch* local_search;
 
 void print_usage(string);
 vector<coordinate*>* getCitiesFromSTDin();
 vector<int> getPathFromFile(string);
-tour* naiveTspPath();
 void printMapMatrix();
 void printMapCities();
-void printTour(tour*);
+
 
 
 int main(int argc, char* argv[])
@@ -42,7 +40,8 @@ int main(int argc, char* argv[])
 	}
 
 	map = new Map(cities);
-	local_search = new TabuSearch(map);
+	LocalSearch* local_search = new TabuSearch(map);
+	NaiveGreedy greedy;
 
 	#ifdef PRINT
 		printMapCities();
@@ -55,7 +54,7 @@ int main(int argc, char* argv[])
 		cout << "Done parsing" << endl;
 	#endif
 	
-	tour* curr_tour= naiveTspPath();
+	tour* curr_tour= greedy.naiveTspPath(map);
 	
 	#ifdef DEBUG_TRACE
 		cout << "Done Touring" << endl;
@@ -99,26 +98,6 @@ int main(int argc, char* argv[])
 	delete curr_tour;
 }
 
-void printTour(tour* t)
-{
-	int count = t->path.size();
-	#ifdef KATTIS
-		for(int i = 0; i < count; i++)
-		{
-			cout << t->path[i] << "\n";
-		}
-		cout << "\n";
-	#else
-		cout << t->path[0];
-		for(int i = 1; i < count; i++)
-		{
-			cout << " -> " << t->path[i];
-		}
-		cout << "\n";
-		cout << "COST: " << t->cost << "\n";
-	#endif
-}
-
 void printMapCities()
 {
 	cout << "\n\nCITIES \n";
@@ -142,58 +121,6 @@ void printMapMatrix()
 		}
 		cout << "\n";
 	}
-}
-
-// Kattis naive algorithm: https://kth.kattis.scrool.se/problems/oldkattis:tsp
-tour* naiveTspPath()
-{
-	int N = map->getDimension();
-	bool used[N];
-
-	// Init array
-	for(int i = 1; i < N; i++)
-	{
-		used[i] = false;
-	}
-	used[0] = true;
-	tour* newTour = new tour(N);
-	
-	//t[0] = 0;
-	newTour->path[0] = 0;	
-	double totalcost = 0.0;
-	
-	for(int i = 1; i < N; i++)
-	{
-		int best = -1;
-		double cost = 2147483647;
-		
-		for(int j = 0; j < N; j++)
-		{
-			if(used[j] || newTour->path[i-1] == j)
-				continue;
-			
-			double d = map->getDistance(newTour->path[i-1], j);
-			
-			if(best == -1 || d < cost)
-			{
-				best = j;
-				cost = d;
-			}
-		}
-		#ifdef DEBUG_TRACE
-			cout << "Best " << best << endl;
-			cout << "Cost " << cost << endl;
-		#endif
-		newTour->path[i] = best;
-		used[best] = true;
-		totalcost += cost;
-	}
-
-	// Add last step back to origin
-	totalcost += map->getDistance(newTour->path[N-1], newTour->path[0]);
-	newTour->cost = totalcost;
-	//exit(0);
-	return newTour;
 }
 
 vector<int> getPathFromFile(string filename)
@@ -240,24 +167,6 @@ vector<coordinate*>* getCitiesFromSTDin()
 
 	return cities;
 }
-
-
-coordinate* newCoordinate(string s)
-{
-    string buf; 			// Have a buffer string
-    stringstream ss(s); 	// Insert the string into a stream
-
-    string tmp[2];  // Create vector to hold our words
-
-    ss >> tmp[0];
-    ss >> tmp[1];
-
-    // close string stream?
-
-    return new coordinate(atof(tmp[0].c_str()), atof(tmp[1].c_str()));
-}
-
-
 
 void print_usage(string output)
 {

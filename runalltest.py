@@ -58,8 +58,8 @@ while not q.empty():
 
 			
 
-for i in range(len(times)):
-	print str(i)+","+str(distances[i])+","+str(times[i])
+#for i in range(len(times)):
+#	print str(i)+","+str(distances[i])+","+str(times[i])
 
 if len(errors) > 0:
 	print "Errors occured on the following tests: " 
