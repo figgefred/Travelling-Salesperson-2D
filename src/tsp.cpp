@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
 	#endif
 
 	bool done = false;
-/*	int max = 10;
-	int counter = 1;
+	int max = 2;
+	int counter = 0;
 	while(!done && counter < max)
 	{
 		tour* better_tour = local_search->getBetterTour(curr_tour);
@@ -83,17 +83,12 @@ int main(int argc, char* argv[])
 		}
 		counter++;
 	}
-	#ifdef PRINT
-		cout << "\nLocal search path: \n";
-		printTour(curr_tour);
-	#endif
-
-#ifndef KATTIS
-	cout << "End result: \n";
-#endif
-*/
 
 	printTour(curr_tour);
+
+	#ifdef DEBUG_TRACE
+		cout << "Finished after counter == " << counter << " were max at " << max << endl;
+	#endif
 
 	
 //	christofides(map);
