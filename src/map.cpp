@@ -90,6 +90,10 @@ double Map::getTourDistance(vector<int>* nodes)
 	return c;
 }
 
+double Map::getTourDistance(tour* t) {
+	return getTourDistance(&(t->path));
+}
+
 void Map::setTourDistance(tour* t)
 {
 	t->cost = getTourDistance(&(t->path));
