@@ -19,16 +19,14 @@ def runtest(executable, test):
 		
 	stdout, stderr = p.communicate(input=data)
 	if stderr or stdout == "":
-		print "Error: ", stderr
-		exit(1)		
+		raise Exception(stderr)
+		
 		
 	endtime = time.time() - starttime
 	path = [int(l) for l in stdout.split("\n") if l != ""]
 	dist = getPathDistance(positions, path)
 	if endtime >= 2.0:
-		print "Error: time limit exceeded", endtime
-		print "Answer was still valid: ", dist, endtime
-		exit(1)
+		raise Exception("Time limit exceeded" + endtime + "s. \n" + "Answer was still valid: " + dist + " "+ endtime);		
 	return dist, endtime
 	
 def getPathDistance(positions, path):
@@ -38,8 +36,8 @@ def getPathDistance(positions, path):
 	visited.add(path[0])
 	for next in path[1:]:		
 		if next in visited:
-			print "Error: validation failed. Revisited the same node! "
-			exit(1)
+			raise Exception("Validation failed. Revisited the same node!")
+			
 		visited.add(next)
 		nextPos = positions[next]
 		distance += math.sqrt(abs(prevPos[0] - nextPos[0])**2 + abs(prevPos[1] - nextPos[1])**2)
@@ -48,8 +46,8 @@ def getPathDistance(positions, path):
 	
 	# check so all nodes were visited.
 	if len(visited) != len(positions):
-		print "Error: validation failed. Did not visit all nodes!"
-		exit(1)
+		raise Exception("Validation failed. Did not visit all nodes!")
+		
 	distance += math.sqrt(abs(prevPos[0] - positions[path[0]][0])**2 + abs(prevPos[1] - positions[path[0]][1])**2)
 	return distance
 	
