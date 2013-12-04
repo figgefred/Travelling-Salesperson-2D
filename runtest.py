@@ -26,7 +26,7 @@ def runtest(executable, test):
 	path = [int(l) for l in stdout.split("\n") if l != ""]
 	dist = getPathDistance(positions, path)
 	if endtime >= 2.0:
-		raise Exception("Time limit exceeded" + endtime + "s. \n" + "Answer was still valid: " + dist + " "+ endtime);		
+		raise Exception("Time limit exceeded " + str(endtime) + "s. \n" + "Answer was still valid: " + str(dist) + " "+ str(endtime));		
 	return dist, endtime
 	
 def getPathDistance(positions, path):
