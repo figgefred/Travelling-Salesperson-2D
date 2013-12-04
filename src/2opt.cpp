@@ -76,35 +76,86 @@ void TwoOpt::swap(tour* t, int i1, int i2)
 	t->cost += cost;
 }
 
+double TwoOpt::getNewCost(tour* t, int i1, int i2) {
+	int city1 = t->path[i1];
+	int city2 = t->path[i2];
+	
+	int lastIndex = t->path.size()-1;	
+	//~ cout << lastIndex << endl;
+	int left1 = t->path[i1-1];
+	int right1 = i1 < lastIndex ? t->path[i1+1] : t->path[0];
+	int left2 = t->path[i2-1];
+	int right2 = i2 < lastIndex ? t->path[i2+1] : t->path[0];
+	
 
-tour* TwoOpt::findNewTour(tour* t) {	
-	double bestcost = t->cost;
-	for(int i = t->path.size()-1; i > -1; --i)
+	double cost = 0;	
+
+	
+	cost += map->getDistance(city2, left1);	
+	cost += map->getDistance(city1, right2);
+	cost += map->getDistance(city2, right1);
+	cost += map->getDistance(city1, left2);
+	
+	cost -= map->getDistance(city1, right1);
+	cost -= map->getDistance(city2, left2);
+	cost -= map->getDistance(city1, left1);	
+	cost -= map->getDistance(city2, right2);	
+	
+	
+	
+	if(i2 == 999 && i1 == 998) {
+		cout << i1-1 << " " << left1 << endl;
+		cout << i1+1 << " " << right1 << endl;
+		cout << i2-1 << " " << left2 << endl;
+		cout << ((i2 < lastIndex) ? i2+1 : 0) <<  " " << right2 << endl;
+		cout << cost << endl;
+	}
+	
+	return cost;
+}
+
+
+bool TwoOpt::findNewTour(tour* t) {	
+	//~ double oldcost = t->cost;
+	double bestcost = 0;
+	int besti = -1;
+	int bestj = -1;
+	for(unsigned int i = 1; i < t->path.size(); ++i)
 	{
-		for(int j = i-1; j > -1; --j)
+		for(unsigned int j = i+2; j < t->path.size(); ++j)
 		{
-			swap(t, j, i);			
+			double cost = getNewCost(t, i, j);
 			
-			if(t->cost < bestcost) {									
-				return t;		
-			}				
-						
-			int tmp = t->path[i];
-			t->path[i] = t->path[j];
-			t->path[j] = tmp;
-			t->cost = bestcost;
-		}			
+			if(cost < bestcost) {									
+				bestcost = cost;
+				besti = i;
+				bestj = j;
+				//~ cout << i << " " << j << endl;
+			}		
+		}	
 	}	
 
-	return NULL;	
+	if(besti < 0)
+		return false;	
+		
+	int tmp = t->path[bestj];
+	t->path[bestj] = t->path[besti];
+	t->path[besti] = tmp;	
+	t->cost += bestcost;
+	//~ cout << besti << " -> " << bestj << endl;
+	
+	return true;
 }
 
 tour* TwoOpt::getBetterTour(tour* t)
 {	
 	int i = 0;
 	t->cost = map->getTourDistance(t);	
-	while(findNewTour(t) != NULL)	
+	while(findNewTour(t)){
+		//~ cout << t->cost << endl;
 		i++;
+	}
+		
 	
 	
 	//~ cout << "Attempts: " << i << endl;
