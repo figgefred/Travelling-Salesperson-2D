@@ -9,7 +9,7 @@ from os import walk
 from threading import Thread
 from Queue import Queue
 
-num_threads = 2
+num_threads = 4
 testdir = "tests/"
 
 if len(sys.argv) < 2:
@@ -44,6 +44,7 @@ def Work():
 			times[t] = time		
 		except Exception as ex:
 			errors.append(test + ": " + str(ex))
+			print str(ex)
 		q.task_done()
 		
 for _ in range(num_threads):

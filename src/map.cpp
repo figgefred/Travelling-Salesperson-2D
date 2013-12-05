@@ -1,6 +1,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <algorithm>    // std::sort
 
 #include "types.h"
 #include "map.h"
@@ -13,6 +14,7 @@ Map::Map (vector<coordinate*> cities)
 	this->cities = cities;
 	dim = cities.size();
 	setDistanceMatrix();
+	setNeighbourMap();
 }
 
 Map::~Map()
@@ -71,16 +73,42 @@ void Map::setDistanceMatrix()
 	}
 
 	for(int i = 0; i < dim; i++)
-	{
-		for(int j = i; j < dim; j++)
+	{		
+		for(int j = i+1; j < dim; j++)
 		{
-			if(i == j)
-				continue;
-
 			double d = calculateDistance(cities[i], cities[j]);
 			distance_mat[i][j] = d;
-			distance_mat[j][i] = d;
+			distance_mat[j][i] = d;			
 		}
+	}
+}
+
+void Map::setNeighbourMap() {
+	// Adjancency lists...
+	vector<double> distances;
+	for(int i = 0; i < dim; ++i) {
+		distances.clear();
+		
+		vector<int> closest_neighbours;
+		
+		for(int j = 0; j < dim; ++j) {
+			if(i == j) continue;
+			distances.push_back(distance_mat[i][j]);
+		}
+		
+		sort(distances.begin(), distances.end());
+		
+		double furthestClosestNeighbour = distances[ADJACENCY_LIST_SIZE - 1];
+		for(int j = 0; j < dim; j++)
+			if(i != j && distance_mat[i][j] <= furthestClosestNeighbour)
+				closest_neighbours.push_back(j);
+				
+		neighbourMap.push_back(closest_neighbours);
+		
+		//~ cout << "len: " << closest_neighbours.size() << " ";
+		//~ for ( auto it = closest_neighbours.begin(); it != closest_neighbours.end(); ++it )
+			//~ std::cout << " " << *it;
+		//~ 
 	}
 }
 
@@ -99,6 +127,10 @@ double Map::getTourDistance(vector<int>& nodes)
 
 double Map::getTourDistance(tour* t) {
 	return getTourDistance(t->path);
+}
+
+vector<int> Map::getNeighbourhood(int cityID) {
+	return neighbourMap[cityID];
 }
 
 //~ void Map::setTourDistance(tour* t)

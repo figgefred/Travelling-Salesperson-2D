@@ -36,7 +36,7 @@ def getPathDistance(positions, path):
 	visited.add(path[0])
 	for next in path[1:]:		
 		if next in visited:
-			raise Exception("Validation failed. Revisited the same node!")
+			raise Exception("Validation failed. Revisited the same node! Node: " + next)
 			
 		visited.add(next)
 		nextPos = positions[next]
@@ -45,8 +45,12 @@ def getPathDistance(positions, path):
 		prevPos = nextPos
 	
 	# check so all nodes were visited.
-	if len(visited) != len(positions):
-		raise Exception("Validation failed. Did not visit all nodes!")
+	if len(visited) != len(positions):	
+		missing = ""
+		for i in range(len(positions)):
+			if not i in visited:
+				missing += str(i) + " "
+		raise Exception("Validation failed. Did not visit all nodes! missing: " + missing )
 		
 	distance += math.sqrt(abs(prevPos[0] - positions[path[0]][0])**2 + abs(prevPos[1] - positions[path[0]][1])**2)
 	return distance

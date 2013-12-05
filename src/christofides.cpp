@@ -34,8 +34,8 @@ tour christofides(Map* map) {
 		}
 
 	vector<int> p;
-	double c = 0.5d;
-	tour t(p, c);
+	//~ double c = 0.5d;
+	tour t(p);
 	return t;
 	
 }

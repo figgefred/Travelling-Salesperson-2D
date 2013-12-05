@@ -31,7 +31,7 @@ void printMapCities();
 
 
 
-int main(int argc, char* argv[])
+int main()
 {
 	vector<coordinate*> cities = *(getCitiesFromSTDin());
 	if(cities.size() == 0)
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	#endif
 	
 	tour* curr_tour= greedy.naiveTspPath(map);
-	
+	//~ cout << "size: " << curr_tour->path.size() << " -> " << endl;
 	#ifdef DEBUG_TRACE
 		cout << "Done Touring" << endl;
 	#endif
@@ -65,7 +65,8 @@ int main(int argc, char* argv[])
 		cout << "\nNaive path: \n";
 		printTour(curr_tour);
 	#endif
-
+	
+	
 	/*
 	bool done = false;
 	int max = 2;
@@ -164,7 +165,6 @@ vector<coordinate*>* getCitiesFromSTDin()
 
 	for(int i = 0;i < count; i++)
 	{
-
 		getline(cin, line);
 		(*cities).push_back(newCoordinate(line));
 	}
