@@ -9,7 +9,7 @@ from os import walk
 from threading import Thread
 from Queue import Queue
 
-num_threads = 4
+num_threads = 2
 testdir = "tests/"
 
 if len(sys.argv) < 2:
