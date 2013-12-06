@@ -3,191 +3,264 @@
 #include <vector>
 #include <stdlib.h>
 #include <iostream>
-
+#include <unordered_set>
+#include <list>
 
 #include "types.h"
 #include "map.h"
 #include "tabusearch.h"
+
+#include <ctime>
 
 using namespace std;
 
 TabuSearch::TabuSearch(Map* m)
 {
 	map = m;
-	int count = m->getDimension();
-	tabulist = vector<int*>(count);
-	for(int i = 0; i < count; i++)
+	//int count = m->getDimension();
+	//tabu_list;
+	/*for(int i = 0; i < count; i++)
 	{
-		tabulist[i] = new int[count];
+		tabu_list[i] = new int[count];
 		for(int j = 0; j < count; j++)
 		{
-			tabulist[i][j] = 0;
+			tabu_list[i][j] = 0;
 		}
-	}
+	}*/
 }
 
 TabuSearch::~TabuSearch()
 {
-	int count = tabulist.size();
-	for(int i = 0; i < count; i++)
-	{
-		delete tabulist[i];
-	}
+
 }
 
 // Private
 
-//swaps two cities
-void TabuSearch::swap(int i1, int i2, tour* t)
+void TabuSearch::tabu_move(int candidate)
 {
-	int left1 = i1-1;
-	int right1 = i1+1;
-	int left2 = i2-1;
-	int right2 = i2+1;
-
-	int lastIndex = map->getDimension()-1;
-	
-
-	// First remove old costs.
-//	cout << "Cost is " << t->cost << endl;
-
-	if(i1 == lastIndex)
-	{
-		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
-		t->cost -= map->getDistance(t->path[0], t->path[i1]);
-		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
-		t->cost -= map->getDistance(t->path[right2], t->path[i2]);
-	}
-	else if( i2 == lastIndex)
-	{
-		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
-		t->cost -= map->getDistance(t->path[right1], t->path[i1]);
-		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
-		t->cost -= map->getDistance(t->path[0], t->path[i2]);
-	}
-	else
-	{
-		t->cost -= map->getDistance(t->path[left1], t->path[i1]);	
-		t->cost -= map->getDistance(t->path[right1], t->path[i1]);
-		t->cost -= map->getDistance(t->path[left2], t->path[i2]);
-		t->cost -= map->getDistance(t->path[right2], t->path[i2]);
-	}
-
-//	cout << "Cost after reduce is " << t->cost << endl;
-	// Do switch
-    int tmp = t->path[i1];
-    t->path[i1] = t->path[i2];
-    t->path[i2] = tmp;
-
-    // Now recalculate costs
-    if(i1 == lastIndex)
-	{ 
-		t->cost += map->getDistance(t->path[left1], t->path[i1]);
-		t->cost += map->getDistance(t->path[0], t->path[i1]);
-		t->cost += map->getDistance(t->path[left2], t->path[i2]);
-		t->cost += map->getDistance(t->path[right2], t->path[i2]);
-	}
-	else if(i2 == lastIndex)
-	{
-		t->cost += map->getDistance(t->path[left1], t->path[i1]);
-		t->cost += map->getDistance(t->path[right1], t->path[i1]);
-		t->cost += map->getDistance(t->path[left2], t->path[i2]);
-		t->cost += map->getDistance(t->path[0], t->path[i2]);
-	}
-	else
-	{
-		t->cost += map->getDistance(t->path[left1], t->path[i1]);
-		t->cost += map->getDistance(t->path[right1], t->path[i1]);
-		t->cost += map->getDistance(t->path[left2], t->path[i2]);
-		t->cost += map->getDistance(t->path[right2], t->path[i2]);
-	}
-
-//	cout << "Recalculated cost is " << t->cost << endl;
-//	cout << endl;
+	tabu_list.insert(candidate);
+	tabu_order.push_back(candidate);
 }
 
+bool TabuSearch::isTabu(int city)
+{
+	return tabu_list.find(city) != tabu_list.end();
+}
+
+void TabuSearch::expire_move()
+{
+	int cand = tabu_order.front();
+	tabu_list.erase(cand);
+	tabu_order.pop_front();
+}
+
+//swaps two cities
+void TabuSearch::swap(vector<int>* t, int i1, int i2)
+{
+	// Do switch
+    int tmp = (*t)[i1];
+    (*t)[i1] = (*t)[i2];
+    (*t)[i2] = tmp;
+}
+
+// http://en.wikipedia.org/wiki/2-opt
+// 1. take route[0] to route[i-1] and add them in order to new_route
+// 2. take route[i] to route[k] and add them in reverse order to new_route
+// 3. take route[k+1] to end and add them in order to new_route
+tour* TabuSearch::flip(tour* curr_tour, int i, int k)
+{
+	int count = curr_tour->path.size();
+	int kPlus = k+1;
+	vector<int> newRoute(count, count);
+	int index;
+	int j = 0;
+	for( index = 0; j < i ; )
+	{
+		newRoute[index++] = curr_tour->path[j++];
+	}
+	for( index = k; j < kPlus; )
+	{
+		newRoute[index--] = curr_tour->path[j++];
+	}
+	for( index = kPlus; j < count; )
+	{
+		newRoute[index++] = curr_tour->path[j++];
+	}
+	tour* new_tour = new tour(newRoute);
+//	new_tour->cost = map->getTourDistance(new_tour);
+//	printTour(curr_tour);
+//	cout << "Switch i=" << i << " and k=" << k << endl;
+//	printTour(new_tour);
+	return new_tour;
+}
+
+double TabuSearch::getNewCost(tour* t, int i1, int i2) {
+	int city1 = t->path[i1];
+	int city2 = t->path[i2];
+	
+	int lastIndex = t->path.size()-1;	
+	//~ cout << lastIndex << endl;
+	int left1 = t->path[i1-1];
+	int right1 = i1 < lastIndex ? t->path[i1+1] : t->path[0];
+	int left2 = t->path[i2-1];
+	int right2 = i2 < lastIndex ? t->path[i2+1] : t->path[0];
+	
+ 
+	double cost = 0;	
+	cost -= map->getDistance(city1, left1);		
+	cost -= map->getDistance(city2, right2);		
+	cost += map->getDistance(city1, right2);	
+	cost += map->getDistance(city2, left1);	
+
+	/*cost -= map->getDistance(city1, left1);		
+	cost -= map->getDistance(city2, right2);	
+	cost += map->getDistance(city2, left1);	
+	cost += map->getDistance(city1, right2);
+	
+	if(right1 == city2) {
+		//~ cout << i1 << " " << i2 << endl;
+		return cost;
+	}
+	
+	cost -= map->getDistance(city1, right1);
+	cost -= map->getDistance(city2, left2);	
+	cost += map->getDistance(city1, left2);
+	cost += map->getDistance(city2, right1);
+	
+	*/
+	return cost;
+}
 
 // Public
-
+int tabu_max = 10;
 
 tour* TabuSearch::getBetterTour(tour* t)
-{
-	// Copy initial tour
-	int count = t->path.size();
-	tour* bestTour = new tour(vector<int>(count));
-	for(int i = 0; i <count ; i++ )
+{	
+	std::clock_t start = std::clock();   
+	t->cost = map->getTourDistance(t);	
+	int max = 10;
+	int counter = 0;
+	bool timeout = false;
+	do
 	{
-		bestTour->path[i] = t->path[i];
+		timeout = false;//(( std::clock() - start ) / (double) CLOCKS_PER_SEC) > 1.0;
+		counter++;
+		tour* newTour = findNewTour(t);
+		if(newTour == NULL)
+		{
+		//	continue;
+			break;
+		}
+		delete t;
+		t = newTour;
+		if(counter % 2 == 0)
+		{
+			tabu_list.clear();
+		}
+	//} while(!timeout);
+	//cout << "Ran " << counter << " rounds!" << endl;
+	} while(true && counter < max);
+	return t;	
+}
+
+tour* TabuSearch::findNewTour(tour* curr_tour)
+{
+	// Tour size
+	int count = curr_tour->path.size();
+	vector<int> tmpTour(count, count);
+	for(int i = 0; i < count; i++)
+	{
+		tmpTour[i] = curr_tour->path[i];
 	}
-	bestTour->cost = t->cost;
+	tour* t = new tour(tmpTour);
+	double tour_cost = curr_tour->cost;
+	t->cost = tour_cost;
+	
 
 	// Some initial values
-	int city1 = 0;
-	int city2 = 0;
-	bool firstNeighbour = true;
+	int cIndex1 = -1;
+	int cIndex2 = -1;
+	//double bestCostDiff = 0;
+	bool changed = false;
 
 	for(int i = 1; i < count; i++)
 	{
 		//cout << "Index " << i << endl;
-		for(int j = 1; j < count; j++)
+//		Neighbourhood* neighbourhood = map->getNeighbourhood(tmpTour[i]);
+		for(int j = i+1; j < count; j++)//int j = 0; j < neighbourhood->getNeighbourCount(); j++)
 		{
-			if(i == j)
+			int candidate = t->path[j];
+/*			if(!neighbourhood->containsNeighbour(candidate))
+			{
 				continue;
+			}*/
 
-			// Copy current best
-			//tour* tourCandidate = new tour(vector<int>(count));
-			/*for(int k = 0; k <count ; k++ )
+			if(tabu_list.find(candidate) != tabu_list.end() || i == j)
 			{
-				tourCandidate->path[k] = bestTour->path[k];
-			}
-			swap(i, j, tourCandidate);*/
-			if(tabulist[i][j] != 0)
 				continue;
-
-			double oldDistance = bestTour->cost;
-			swap(i, j, bestTour);
-			if(oldDistance > bestTour->cost)
-			{
-				firstNeighbour = false;
-				city1 = i;
-				city2 = j;
-
-				#ifdef DEBUG_TRACE
-					cout << bestTour->path[0];
-					for(int i = 1; i < count; i++)
-					{
-						cout << " -> " << bestTour->path[i];
-					}
-					cout << "\n";
-					cout << "COST: " << bestTour->cost << "\n";
-				#endif
 			}
-			else
+			double diff = getNewCost(t, i, j);
+			//if(new_tour->cost < tour_cost)
+			if(diff < 0)
 			{
-				// Swap back as this was not a good switch
-				swap(i, j, bestTour);
-			}		
+				tour* new_tour = flip(t, i, j);
+				changed = true;
+				tabu_move(candidate);
+				while(tabu_list.size() > tabu_max)
+				{
+					expire_move();
+				}
+				//tabu_list.insert(t->path[i]);
+				//swap(&tmpTour, i, j);
+				delete t;
+				t = new_tour;
+				tour_cost += diff;
+			}
+
+/*			double cDiff = getNewCost(t, i, j);
+			if(cDiff < 0)//bestCostDiff)
+			{
+				//firstNeighbour = false;
+				//cIndex1 = i;
+				//cIndex2 = j;
+				changed = true;
+				tabu_move(candidate);
+				while(tabu_list.size() > tabu_max)
+				{
+					expire_move();
+				}
+				//tabu_list.insert(t->path[i]);
+				//swap(&tmpTour, i, j);
+				tour* new_tour = flip(t, i, j);
+				delete t;
+				t = new_tour;
+				tour_cost += cDiff;
+			}*/
 		}
-	}
-	if(city1 == 0)
-	{
-		tabulist[city1][city2]++;
-		tabulist[city2][city1]++;
+	/*	if(tabu_counter > tabu_max)
+		{
+			tabu_counter = 0;
+			tabu_list.clear();
+		}*/
+		/*if(tabu_list.size() > 10)
+		{
+			tabu_list.clear();
+		}*/
 	}
 
-	return bestTour;
+	if(!changed)//cIndex1 == -1)
+		return NULL;
+	//cout << "Wohoooooo lets switch cIndex1=" << cIndex1 << " with cIndex2=" << cIndex2 << endl;
+	//tabu_list[cIndex1][cIndex2]++;
+	//tabu_list[cIndex2][cIndex1]++;
+	//tour* t = new tour(tmpTour);
+	t->cost = tour_cost;
+	return t;
 }
 
 void TabuSearch::reset()
 {
-	int count = tabulist.size();
-	for(int i = 0; i < count; i++)
-	{
-		for(int j = 0; j < count; j++)
-		{
-			tabulist[i][j] = 0;
-		}
-	}
+
 }
 
 /*int main()

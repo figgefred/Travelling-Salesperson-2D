@@ -46,16 +46,8 @@ int main()
 	}
 
 	map = new Map(cities);
-	//~ LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
+	LocalSearch* local_search = new TabuSearch(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
-
-	//~ #ifdef PRINT
-		//~ printMapCities();
-		//~ cout << "DONE CITIES!" << endl;
-		//~ printMapMatrix();
-		//~ cout << "DONE PRINT!" << endl;
-	//~ #endif
 	
 	#ifdef DEBUG_TRACE
 		cout << "Done parsing" << endl;
@@ -74,20 +66,25 @@ int main()
 	#endif
 	
 	curr_tour = local_search->getBetterTour(curr_tour);
-
 	printTour(curr_tour);
 
 	#ifdef DEBUG_TRACE
-		cout << "Finished after counter == " << counter << " were max at " << max << endl;
+		LocalSearch* local_search_2 = new TwoOpt(map);
+		tour* ref_tour= greedy.naiveTspPath(map);
+		cout << "TABU-cost: " << curr_tour->cost << endl;
+		cout << "Greedy-cost: " << ref_tour->cost << endl;
+		//printTour(ref_tour);
+		local_search_2->getBetterTour(ref_tour);
+		cout << "Two-2-cost: " << ref_tour->cost << endl;
+		//printTour(ref_tour);
 	#endif
-
 	
-//	christofides(map);
+	// christofides(map);
 
 	// Free resources
-	//~ delete local_search;
-	//~ delete map;
-	//~ delete curr_tour;
+	delete local_search;
+	delete map;
+	delete curr_tour;
 }
 
 //~ void printMapCities()

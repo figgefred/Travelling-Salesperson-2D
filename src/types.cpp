@@ -3,9 +3,9 @@
 #include <sstream>
 #include <iostream>
 
-using namespace std;
-
 #define KATTIS
+
+using namespace std;
 
 coordinate* newCoordinate(string s)
 {

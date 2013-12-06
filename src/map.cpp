@@ -116,7 +116,3 @@ double Map::getTourDistance(vector<int>& nodes)
 double Map::getTourDistance(tour* t) {
 	return getTourDistance(t->path);
 }
-
-vector<int>* Map::getNeighbourhood(int cityID) {
-	return neighbourMap[cityID];
-}
