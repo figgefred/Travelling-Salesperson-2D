@@ -3,8 +3,7 @@ import os, sys, subprocess, math, time
 
 timeout = 2000
 
-def runtest(executable, test):		
-	starttime = time.time()
+def runtest(executable, test):	
 	p = subprocess.Popen([executable], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 	f = open(test)
 	data = ""
@@ -16,7 +15,8 @@ def runtest(executable, test):
 			continue
 		pos = float(w[0]), float(w[1])
 		positions.append(pos)
-		
+	
+	starttime = time.time()
 	stdout, stderr = p.communicate(input=data)
 	if stderr or stdout == "":
 		raise Exception("Stderr: " + stderr)

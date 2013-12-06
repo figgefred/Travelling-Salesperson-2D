@@ -14,13 +14,14 @@ def createTest(filename, number_of_cities):
 		f.write(str(random.random() * max_bound) + " " + str(random.random() * max_bound)+"\n")
 	f.close()
 
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
 	print """
-	USAGE: mktests.py <number of tests>
+	USAGE: mktests.py <testdir> <number of tests>
 	"""
 	exit(1)
-	
-number_of_tests = int(sys.argv[1])
+
+testdir = sys.argv[1]	
+number_of_tests = int(sys.argv[2])
 for i in range(number_of_tests):
 	filename = test_dir + str(i)
 	createTest(filename, i+1)

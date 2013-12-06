@@ -15,7 +15,7 @@ Map::Map (vector<coordinate*>* cities)
 	setDistanceMatrix(cities);
 	cities->clear();		
 	delete cities; // Frigör coordinates etc, vi behöver space för neighbourmaps? :/
-	setNeighbourMap();
+	//~ setNeighbourMap();
 }
 
 Map::~Map()

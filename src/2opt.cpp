@@ -110,21 +110,21 @@ double TwoOpt::getNewCost(tour* t, int i1, int i2) {
 }
 
 
-bool TwoOpt::findNewTour(tour* t) {	
+bool TwoOpt::findNewTour(tour* t, std::clock_t start) {	
 	//~ double oldcost = t->cost;
 	double bestcost = 0;
 	int besti = -1;
 	int bestj = -1;
 	unsigned int size = t->path.size();
-	for(unsigned int i = 1; i < size; ++i)
+	for(unsigned int i = 1; i < size && start + 1.5*CLOCKS_PER_SEC > std::clock(); ++i)
 	{
 		int city = t->path[i];
 		double maxdistallowed = map->getDistance(i,i);
 		//~ vector<int>* closest_neighbours = map->getNeighbourhood(city);
 		for(unsigned int j = i+1; j < size; ++j)
 		{				
-			if(map->getDistance(i,j) > maxdistallowed)
-				continue;
+			//~ if(map->getDistance(i,j) > maxdistallowed)
+				//~ continue;
 			
 			//~ int city2 = closest_neighbours->at(j);			
 			//~ unsigned int index = t->reverse_map[city2];
@@ -163,8 +163,8 @@ tour* TwoOpt::getBetterTour(tour* t)
 	int i = 0;
 	t->cost = map->getTourDistance(t);		
 	bool timedout = false;
-	while(findNewTour(t) && !timedout){
-		timedout = (( std::clock() - start ) / (double) CLOCKS_PER_SEC) > 1.7;
+	while(findNewTour(t, start) && !timedout){
+		timedout = (( std::clock() - start ) / (double) CLOCKS_PER_SEC) > 1.5;
 		//~ cout << t->cost << endl;
 		i++;
 	}
