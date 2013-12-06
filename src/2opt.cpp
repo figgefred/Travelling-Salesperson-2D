@@ -12,133 +12,83 @@ TwoOpt::TwoOpt(Map* map) {
 
 // From wikipedia psuedocode:
 // http://en.wikipedia.org/wiki/2-opt
-/*
-tour* TwoOpt::swap(tour* t, tour* newTour, int from, int to)
+tour* TwoOpt::swap(tour* t, int from, int to)
 {	
-	newTour->path.clear();
-	//  1. take route[0] to route[i-1] and add them in order to new_rout
-	for(int i = 0; i < from; ++i) {
-		newTour->path.push_back(t->path[i]);		
-	}
+	int toswap = (to - from) / 2 + (to - from) % 2; 
+	//~ cout << "Before swap of " << from << " " << to << " " << toswap << endl;
+	//~ printTour(t);
+	// 1. take route[0] to route[i-1] and add them in order to new_route
 	// 2. take route[i] to route[k] and add them in reverse order to new_route
-	for(int i = to; i >= from; --i) {		
-		newTour->path.push_back(t->path[i]);
-	}
 	// 3. take route[k+1] to end and add them in order to new_route
-	for(unsigned int i = to+1; i < t->path.size(); ++i) {		
-		newTour->path.push_back(t->path[i]);
+	for(int i = 0; i < toswap; ++i) {		
+		int left = from+i;
+		int right = to-i;				
+		//~ cout << i << ": Swap: p[" << left << "]: " << t->path[left] << " and p[" << right << "]: " << t->path[right] << endl;
+		int tmp = t->path[left];		
+		t->path[left] = t->path[right];
+		t->path[right] = tmp;
 	}
+		
+	//~ cout << "After swap" << endl;
+	//~ printTour(t);
 	
-	//~ cout << t->path.size() << endl;
-	//~ cout << from << " " << to << endl;
-	//~ cout << newTour->path.size() << endl;
-	
-	//~ cout << "Swap finished. " << newTour->path.size() << endl;
-	newTour->cost = map->getTourDistance(newTour);
-	return newTour;	
+	return t;	
 }
-*/
 
-//swaps two cities
-//~ void TwoOpt::swap(tour* t, int i1, int i2)
-//~ {
-	//~ int left1 = i1-1;
-	//~ int right1 = i1+1;
-	//~ int left2 = i2-1;
-	//~ int right2 = i2+1;
-//~ 
-	//~ int lastIndex = t->path.size()-1;
-//~ 
-	//~ // First remove old costs.
-//~ //	cout << "Cost is " << t->cost << endl;
-//~ 
-	//~ if(i1 == lastIndex)
-		//~ right1 = 0;
-	//~ else if( i2 == lastIndex)	
-		//~ right2 = 0;
-	//~ 
-	//~ double cost = 0;
-	//~ cost -= map->getDistance(t->path[left1], t->path[i1]);	
-	//~ cost -= map->getDistance(t->path[right1], t->path[i1]);
-	//~ cost -= map->getDistance(t->path[left2], t->path[i2]);
-	//~ cost -= map->getDistance(t->path[right2], t->path[i2]);
-//~ 
-//~ //	cout << "Cost after reduce is " << t->cost << endl;
-	//~ // Do switch
-	//~ int tmp = t->path[i1];
-	//~ t->path[i1] = t->path[i2];
-	//~ t->path[i2] = tmp;
-	//~ 
-	//~ cost += map->getDistance(t->path[left1], t->path[i1]);
-	//~ cost += map->getDistance(t->path[right1], t->path[i1]);
-	//~ cost += map->getDistance(t->path[left2], t->path[i2]);
-	//~ cost += map->getDistance(t->path[right2], t->path[i2]);
-	//~ 
-	//~ t->cost += cost;
-//~ }
 
 double TwoOpt::getNewCost(tour* t, int i1, int i2) {
-	int city1 = t->path[i1];
-	int city2 = t->path[i2];
+	int e1 = t->path[i1];
+	int s2 = t->path[i2];
 	
 	int lastIndex = t->path.size()-1;	
-	//~ cout << lastIndex << endl;
-	int left1 = i1 > 0 ? t->path[i1-1] : t->path[lastIndex];
-	int right1 = i1 < lastIndex ? t->path[i1+1] : t->path[0];
-	int left2 = i2 > 0 ? t->path[i2-1] : t->path[lastIndex];
-	int right2 = i2 < lastIndex ? t->path[i2+1] : t->path[0];
+	//~ int s1 = t->path[i1-1];
+	int s1 = i1 > 0 ? t->path[i1-1] : t->path[lastIndex];	
+	int e2 = i2 < lastIndex ? t->path[i2+1] : t->path[0];
 	
-
+ 
 	double cost = 0;	
-	
-	cost -= map->getDistance(city1, left1);		
-	cost -= map->getDistance(city2, right2);	
-	cost += map->getDistance(city2, left1);	
-	cost += map->getDistance(city1, right2);
-	
-	if(right1 == city2) {
-		//~ cout << i1 << " " << i2 << endl;
-		return cost;
-	}
-	
-	cost -= map->getDistance(city1, right1);
-	cost -= map->getDistance(city2, left2);	
-	cost += map->getDistance(city1, left2);
-	cost += map->getDistance(city2, right1);
+	cost -= map->getDistance(e1, s1);		
+	cost -= map->getDistance(s2, e2);		
+	cost += map->getDistance(e1, e2);	
+	cost += map->getDistance(s2, s1);	
 	
 	return cost;
+	
+	
+	//~ int lastIndex = t->path.size()-1;	
+	//~ int e1 = t->path[i1];
+	
+	//~ int s2 = t->path[i2];
+	//~ int e2 = i2 < lastIndex ? t->path[i2+1] : t->path[0];
+
+	//~ double cost = 0;		
+	//~ cost -= map->getDistance(s1, e1);		
+	//~ cost -= map->getDistance(s2, e2);	
+	//~ 
+	//~ cost += map->getDistance(e1, e2);	
+	//~ cost += map->getDistance(s2, s1);
+	
+	//~ return cost;
 }
 
-
-bool TwoOpt::findNewTour(tour* t, std::clock_t start) {	
-	//~ double oldcost = t->cost;
+bool TwoOpt::findNewTour(tour* t, std::clock_t start) {		
 	double bestcost = 0;
 	int besti = -1;
 	int bestj = -1;
 	unsigned int size = t->path.size();
 	for(unsigned int i = 1; i < size && start + 1.5*CLOCKS_PER_SEC > std::clock(); ++i)
 	{
-		int city = t->path[i];
-		double maxdistallowed = map->getDistance(i,i);
-		//~ vector<int>* closest_neighbours = map->getNeighbourhood(city);
+		//~ int city = t->path[i];
+		//~ double maxdistallowed = map->getDistance(i,i);				
+		
 		for(unsigned int j = i+1; j < size; ++j)
 		{				
-			//~ if(map->getDistance(i,j) > maxdistallowed)
-				//~ continue;
-			
-			//~ int city2 = closest_neighbours->at(j);			
-			//~ unsigned int index = t->reverse_map[city2];
-
-			double cost = (i < j) ? getNewCost(t, i, j) : getNewCost(t, j, i);
-			//~ double cost = getNewCost(t, i, j);
-			//~ cout << cost << endl;
-			
+			double cost = getNewCost(t, i, j);
 			
 			if(cost < bestcost) {									
 				bestcost = cost;
 				besti = i;
-				bestj = j;
-				//~ cout << i << " " << j << endl;				
+				bestj = j;	
 			}		
 		}	
 	}	
@@ -146,12 +96,10 @@ bool TwoOpt::findNewTour(tour* t, std::clock_t start) {
 	if(besti < 0)
 		return false;
 
-	int tmp = t->path[bestj];
-	t->path[bestj] = t->path[besti];
-	//~ t->reverse_map[t->path[besti]] = bestj;
-	t->path[besti] = tmp;	
-	//~ t->reverse_map[tmp] = besti;
+	//~ cout << "Best cost: " << bestcost << " " << besti << " " << bestj << endl;	
+	t = swap(t, besti, bestj);
 	t->cost += bestcost;
+	
 	
 	return true;
 }
