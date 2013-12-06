@@ -7,6 +7,10 @@ using namespace std;
 // Kattis naive algorithm: https://kth.kattis.scrool.se/problems/oldkattis:tsp
 tour* NaiveGreedy::naiveTspPath(Map* map)
 {
+	return naiveTspPath(map, 0);
+}
+
+tour* NaiveGreedy::naiveTspPath(Map* map, int startnode) {
 	int N = map->getDimension();
 	bool used[N];
 	vector<int> path;

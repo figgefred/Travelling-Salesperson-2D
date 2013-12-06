@@ -18,7 +18,7 @@ class TwoOpt : public LocalSearch
 		bool findNewTour(tour* t, std::clock_t start);
 	public:
 		TwoOpt(Map* map);
-		virtual tour* getBetterTour(tour*);
+		virtual tour* getBetterTour(tour*, std::clock_t);
 
 };
 

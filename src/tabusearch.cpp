@@ -123,13 +123,13 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 // Public
 int tabu_max = 100;
 
-tour* TabuSearch::getBetterTour(tour* t)
+tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
 {	
 	std::clock_t start = std::clock();   
 	t->cost = map->getTourDistance(t);	
 	
 	int counter = 0;	
-	std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
 	do
 	{
 		counter++;

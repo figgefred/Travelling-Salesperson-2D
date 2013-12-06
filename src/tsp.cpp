@@ -6,6 +6,7 @@
 #include <sstream>
 #include <math.h>
 #include <fstream>
+#include <ctime>
 
 #include "map.h"
 #include "types.h"
@@ -27,6 +28,7 @@ vector<coordinate*>* getCitiesFromSTDin();
 
 int main()
 {
+	std::clock_t deadline = std::clock() + 1.9*CLOCKS_PER_SEC;
 	vector<coordinate*>* cities = getCitiesFromSTDin();
 	if(cities->size() == 0)
 	{
@@ -43,30 +45,41 @@ int main()
 	//~ LocalSearch* local_search = new TabuSearch(map);
 	LocalSearch* local_search = new TwoOpt(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
-	// christofides(map);
+	// christofides(map);		
 	
-	// Startgissning
-	tour* curr_tour= greedy->naiveTspPath(map);	
+	tour* best_tour = NULL;
+	double bestcost = 0;
 	
-	// Förbättring
-	curr_tour = local_search->getBetterTour(curr_tour);
+	int i = 0;
+	for(; std::clock() < deadline; i++)
+	{
+		i = i % map->getDimension();
+		// Startgissning
+		tour* curr_tour = greedy->naiveTspPath(map, i);
+		// Förbättring
+		curr_tour = local_search->getBetterTour(curr_tour, deadline);
+		
+		//~ cout << i << " " << curr_tour->cost << endl;
+		
+		if(best_tour == NULL || curr_tour->cost < bestcost) {
+			bestcost = curr_tour->cost;
+			best_tour = curr_tour;			
+		}
+		
+		//~ delete curr_tour;
+	}
 	
 	
-	printTour(curr_tour);
-
-	#ifdef DEBUG_TRACE
-		LocalSearch* local_search_2 = new TwoOpt(map);
-		tour* ref_tour= greedy.naiveTspPath(map);
-		cout << "TABU-cost: " << curr_tour->cost << endl;
-		cout << "Greedy-cost: " << ref_tour->cost << endl;		
-		local_search_2->getBetterTour(ref_tour);
-		cout << "Two-2-cost: " << ref_tour->cost << endl;		
-	#endif
-
+	// Output.
+	printTour(best_tour);
+	
+	//~ cout << "Runs: " << i << endl;
+	
+	
 	// Free resources
 	delete local_search;
 	delete map;
-	delete curr_tour;
+	
 }
 
 vector<coordinate*>* getCitiesFromSTDin()
@@ -77,7 +90,7 @@ vector<coordinate*>* getCitiesFromSTDin()
 
 	vector<coordinate*>* cities = new vector<coordinate*>();
 
-	for(int i = 0;i < count; i++)
+	for(int i = 0; i < count; i++)
 	{
 		getline(cin, line);
 		cities->push_back(newCoordinate(line));

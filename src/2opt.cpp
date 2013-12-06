@@ -95,9 +95,9 @@ bool TwoOpt::findBestNewTour(tour* t, std::clock_t deadline) {
 	return true;
 }
 
-tour* TwoOpt::getBetterTour(tour* t)
+tour* TwoOpt::getBetterTour(tour* t, std::clock_t deadline)
 {	
-	std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
 	
 	int i = 0;
 	t->cost = map->getTourDistance(t);		
