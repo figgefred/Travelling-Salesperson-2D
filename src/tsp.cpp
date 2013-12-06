@@ -18,7 +18,7 @@
 using namespace std;
 
 //#define PRINT
-#define KATTIS
+//#define KATTIS
 //#define DEBUG_TRACE
 
 Map* map;
@@ -40,8 +40,7 @@ int main(int argc, char* argv[])
 	}
 
 	map = new Map(cities);
-	//~ LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
+	LocalSearch* local_search = new TabuSearch(map);
 	NaiveGreedy greedy;
 
 	#ifdef PRINT
@@ -66,40 +65,32 @@ int main(int argc, char* argv[])
 		printTour(curr_tour);
 	#endif
 
-	/*
-	bool done = false;
-	int max = 2;
-	int counter = 0;
-	while(!done && counter < max)
-	{
-		tour* better_tour = local_search->getBetterTour(curr_tour);
-		if(better_tour->cost < curr_tour->cost)
-		{
-			delete curr_tour;
-			curr_tour= better_tour;
-		}
-		else
-		{
-			done = true;
-		}
-		counter++;
-	}
-	* */
-	curr_tour = local_search->getBetterTour(curr_tour);
-
+	//curr_tour = local_search->getBetterTour(curr_tour);
 	printTour(curr_tour);
 
 	#ifdef DEBUG_TRACE
-		cout << "Finished after counter == " << counter << " were max at " << max << endl;
+		LocalSearch* local_search_2 = new TwoOpt(map);
+		tour* ref_tour= greedy.naiveTspPath(map);
+		cout << "TABU-cost: " << curr_tour->cost << endl;
+		cout << "Greedy-cost: " << ref_tour->cost << endl;
+		//printTour(ref_tour);
+		local_search_2->getBetterTour(ref_tour);
+		cout << "Two-2-cost: " << ref_tour->cost << endl;
+		//printTour(ref_tour);
 	#endif
 
+		/*for(int i = 0; i < cities.size(); i++)
+		{
+			Neighbourhood* n = map->getNeighbourhood(i);
+			n->printNeighbours();
+		}*/
 	
-//	christofides(map);
+	// christofides(map);
 
 	// Free resources
-	//~ delete local_search;
-	//~ delete map;
-	//~ delete curr_tour;
+	delete local_search;
+	delete map;
+	delete curr_tour;
 }
 
 void printMapCities()

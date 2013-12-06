@@ -3,12 +3,15 @@
 #include "localsearch.h"
 #include "types.h"
 #include <vector>
+#include <unordered_set>
 
 class TabuSearch : public LocalSearch
 {
 	private:
-		std::vector<int*> tabulist;
-		void swap(int city1, int city2, tour*);
+		std::unordered_set<int> tabulist;
+		void swap(std::vector<int>*, int city1, int city2);
+		double getNewCost(std::vector<int>*, int, int);
+		tour* findNewTour(tour*);
 
 	public:
 		TabuSearch(Map*);

@@ -9,7 +9,7 @@ EXE_ARGS = input/test_1.in
 
 SRC_DIR = src/
 INCL = $(SRC_DIR)
-SRC_FILES = tsp.cpp map.cpp tabusearch.cpp christofides.cpp 2opt.cpp types.cpp naivegreedy.cpp
+SRC_FILES = tsp.cpp map.cpp tabusearch.cpp christofides.cpp 2opt.cpp types.cpp naivegreedy.cpp neighbourhood.cpp
 SOURCES = $(SRC_FILES:%.cpp=$(SRC_DIR)%.cpp)
 CCFLAGS = -I. -I$(INCL)
 
