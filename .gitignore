@@ -1,5 +1,7 @@
+old/
 /bin/
 tests/
+obj/
 
 # Compiled Object files
 *.slo

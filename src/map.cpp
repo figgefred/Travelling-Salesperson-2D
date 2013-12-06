@@ -1,7 +1,6 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
-#include "neighbourhood.h"
 #include "types.h"
 #include "map.h"
 
@@ -12,7 +11,6 @@ Map::Map (vector<coordinate*> cities)
 	this->cities = cities;
 	dim = cities.size();
 	setDistanceMatrix();
-	setLocalNeighbourhoods();
 }
 
 Map::~Map()
@@ -20,7 +18,7 @@ Map::~Map()
 	for(int i = 0; i < dim; i++)
 	{
 		delete distance_mat[i];
-		delete closestNeighbours[i];
+//		delete closestNeighbours[i];
 	}
 	delete distance_mat;
 }
@@ -52,7 +50,7 @@ double Map::calculateDistance(coordinate* c1, coordinate* c2)
 	return sqrt(pow(x, 2.0) + pow(y, 2.0));
 }
 
-void Map::setLocalNeighbourhoods()
+/*void Map::setLocalNeighbourhoods()
 {
 	int dim = getDimension();
 	int maxNeighbours = 50;
@@ -64,7 +62,7 @@ void Map::setLocalNeighbourhoods()
 		closestNeighbours.push_back(new Neighbourhood(i, dim, maxNeighbours, distance_mat[i]));
 	}
 }
-
+*/
 void Map::setDistanceMatrix()
 {
 	distance_mat = new double*[dim];
@@ -87,10 +85,10 @@ void Map::setDistanceMatrix()
 	}
 }
 
-Neighbourhood* Map::getNeighbourhood(int index)
+/*Neighbourhood* Map::getNeighbourhood(int index)
 {
 	return closestNeighbours[index];
-}
+}*/
 
 double Map::getTourDistance(vector<int>& nodes)
 {

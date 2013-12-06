@@ -2,18 +2,17 @@
 #ifndef _MAP
 	#include <vector>
 	#include "types.h"
-	#include "neighbourhood.h"
 
 	class Map
 	{
 		private:
 			double** distance_mat;
 			std::vector<coordinate*> cities;
-			std::vector<Neighbourhood*> closestNeighbours;
+			//std::vector<Neighbourhood*> closestNeighbours;
 			int dim;
 			double calculateDistance(coordinate*, coordinate*);
 			void setDistanceMatrix();
-			void setLocalNeighbourhoods();
+			//void setLocalNeighbourhoods();
 		public:
 			Map (std::vector<coordinate*>);
 			~Map();
@@ -24,7 +23,7 @@
 			void setTourDistance(tour*);
 			double getTourDistance(std::vector<int>&);
 			double getTourDistance(tour* t);
-			Neighbourhood* getNeighbourhood(int);
+			//Neighbourhood* getNeighbourhood(int);
 	};
 
 	#define _MAP

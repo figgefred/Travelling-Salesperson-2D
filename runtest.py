@@ -3,8 +3,7 @@ import os, sys, subprocess, math, time
 
 timeout = 2000
 
-def runtest(executable, test):		
-	starttime = time.time()
+def runtest(executable, test):	
 	p = subprocess.Popen([executable], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)	
 	f = open(test)
 	data = ""
@@ -16,17 +15,18 @@ def runtest(executable, test):
 			continue
 		pos = float(w[0]), float(w[1])
 		positions.append(pos)
-		
+	
+	starttime = time.time()
 	stdout, stderr = p.communicate(input=data)
 	if stderr or stdout == "":
-		raise Exception(stderr)
+		raise Exception("Stderr: " + stderr)
 		
 		
 	endtime = time.time() - starttime
 	path = [int(l) for l in stdout.split("\n") if l != ""]
 	dist = getPathDistance(positions, path)
 	if endtime >= 2.0:
-		raise Exception("Time limit exceeded" + endtime + "s. \n" + "Answer was still valid: " + dist + " "+ endtime);		
+		raise Exception("Time limit exceeded " + str(endtime) + "s. \n" + "Answer was still valid: " + str(dist) + " "+ str(endtime));		
 	return dist, endtime
 	
 def getPathDistance(positions, path):
@@ -36,7 +36,7 @@ def getPathDistance(positions, path):
 	visited.add(path[0])
 	for next in path[1:]:		
 		if next in visited:
-			raise Exception("Validation failed. Revisited the same node!")
+			raise Exception("Validation failed. Revisited the same node! Node: " + str(next))
 			
 		visited.add(next)
 		nextPos = positions[next]
@@ -45,8 +45,12 @@ def getPathDistance(positions, path):
 		prevPos = nextPos
 	
 	# check so all nodes were visited.
-	if len(visited) != len(positions):
-		raise Exception("Validation failed. Did not visit all nodes!")
+	if len(visited) != len(positions):	
+		missing = ""
+		for i in range(len(positions)):
+			if not i in visited:
+				missing += str(i) + " "
+		raise Exception("Validation failed. Did not visit all nodes! missing: " + missing )
 		
 	distance += math.sqrt(abs(prevPos[0] - positions[path[0]][0])**2 + abs(prevPos[1] - positions[path[0]][1])**2)
 	return distance
@@ -76,4 +80,3 @@ if __name__ == '__main__':
 	
 	
 	
-

@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		printTour(curr_tour);
 	#endif
 
-	//curr_tour = local_search->getBetterTour(curr_tour);
+	curr_tour = local_search->getBetterTour(curr_tour);
 	printTour(curr_tour);
 
 	#ifdef DEBUG_TRACE

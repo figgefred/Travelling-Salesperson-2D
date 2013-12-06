@@ -1,0 +1,14 @@
+#!/bin/bash
+
+make clean && make
+./runtest.py bin/tsp tests/0
+./runtest.py bin/tsp tests/1
+./runtest.py bin/tsp tests/2
+./runtest.py bin/tsp tests/3
+./runtest.py bin/tsp tests/4
+./runtest.py bin/tsp tests/5
+./runtest.py bin/tsp tests/6
+./runtest.py bin/tsp tests/7
+./runtest.py bin/tsp tests/8
+./runtest.py bin/tsp tests/9
+
