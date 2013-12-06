@@ -8,7 +8,7 @@
 class TwoOpt : public LocalSearch
 {	
 	private: 
-		const static bool findBest = false;
+		const static bool findBest = true;
 		
 		
 		void swap(tour* t, int from, int to, double cost);

@@ -54,6 +54,7 @@ int main()
 	for(; std::clock() < deadline; i++)
 	{
 		i = i % map->getDimension();
+		
 		// Startgissning
 		tour* curr_tour = greedy->naiveTspPath(map, i);
 		// Förbättring
