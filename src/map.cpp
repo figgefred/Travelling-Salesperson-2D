@@ -9,11 +9,12 @@
 
 using namespace std;
 
-Map::Map (vector<coordinate*> cities)
+Map::Map (vector<coordinate*>* cities)
 {
-	this->cities = cities;
-	dim = cities.size();
-	setDistanceMatrix();
+	dim = cities->size();
+	setDistanceMatrix(cities);
+	cities->clear();		
+	delete cities; // Frigör coordinates etc, vi behöver space för neighbourmaps? :/
 	setNeighbourMap();
 }
 
@@ -22,39 +23,19 @@ Map::~Map()
 	for(int i = 0; i < dim; i++)
 	{
 		delete distance_mat[i];
+		//~ delete neighbourMap[i];
 	}
-	delete distance_mat;
-}
-
-vector<coordinate*> Map::getCities()
-{
-	return cities;
+	delete distance_mat;	
 }
 
 double Map::getDistance(int i, int j)
 {
-	// Får hellre segfault just nu...	
-	// Den här funktionen körs flera gånger i swap för både tabu och 2opt. Vilket är längst ner i O(n^2) skiten	
-	// Jämförelserna tar alltså extra tid!!!!!
-	//~ if(i < 0 || j < 0 || i >= dim || j >= dim)
-	//~ {
-		//~ std::cout << "i or j out of bounds when fetching distance!!" << std::endl;
-		//~ std::cout << i << std::endl;
-		//~ std::cout << j << std::endl;
-		//~ std::cout << dim << std::endl;
-		//~ return -1;
-	//~ }
 	return distance_mat[i][j];
 }
 
 int Map::getDimension()
 {
 	return dim;
-}
-	
-coordinate* Map::getCityCoordinate(int i)
-{
-	return cities[i];
 }
 
 double Map::calculateDistance(coordinate* c1, coordinate* c2)
@@ -64,7 +45,7 @@ double Map::calculateDistance(coordinate* c1, coordinate* c2)
 	return sqrt(pow(x, 2.0) + pow(y, 2.0));
 }
 
-void Map::setDistanceMatrix()
+void Map::setDistanceMatrix(std::vector<coordinate*>* cities)
 {
 	distance_mat = new double*[dim];
 	for(int i = 0; i < dim; i++)
@@ -76,7 +57,7 @@ void Map::setDistanceMatrix()
 	{		
 		for(int j = i+1; j < dim; j++)
 		{
-			double d = calculateDistance(cities[i], cities[j]);
+			double d = calculateDistance(cities->at(i), cities->at(j));
 			distance_mat[i][j] = d;
 			distance_mat[j][i] = d;			
 		}
@@ -85,12 +66,12 @@ void Map::setDistanceMatrix()
 
 void Map::setNeighbourMap() {
 	// Adjancency lists...
-	vector<double> distances;
-	for(int i = 0; i < dim; ++i) {
-		distances.clear();
-		
-		vector<int> closest_neighbours;
-		
+	vector<double> distances; // = new vector<double>();	// Allokera på heap!!
+	//~ distances->reserve(dim);
+	double furthestClosestNeighbour = 0.0D;
+	int pos = (dim > ADJACENCY_LIST_SIZE) ?  ADJACENCY_LIST_SIZE - 2 : dim - 2;
+	
+	for(int i = 0; i < dim; ++i) {		
 		for(int j = 0; j < dim; ++j) {
 			if(i == j) continue;
 			distances.push_back(distance_mat[i][j]);
@@ -98,18 +79,25 @@ void Map::setNeighbourMap() {
 		
 		sort(distances.begin(), distances.end());
 		
-		double furthestClosestNeighbour = distances[ADJACENCY_LIST_SIZE - 1];
-		for(int j = 0; j < dim; j++)
-			if(i != j && distance_mat[i][j] <= furthestClosestNeighbour)
-				closest_neighbours.push_back(j);
-				
-		neighbourMap.push_back(closest_neighbours);
+			
+		//~ cout << "dim/pos:" << dim << " " << pos << endl;
+		furthestClosestNeighbour = distances.at(pos);			
+		distance_mat[i][i] = furthestClosestNeighbour;
+		distances.clear();
+		
+		//~ for(int j = 0; j < dim; j++)
+			//~ if(i != j && distance_mat[i][j] <= furthestClosestNeighbour)
+				//~ closest_neighbours->push_back(j);
+				//~ 
+		//~ neighbourMap.push_back(closest_neighbours);
 		
 		//~ cout << "len: " << closest_neighbours.size() << " ";
 		//~ for ( auto it = closest_neighbours.begin(); it != closest_neighbours.end(); ++it )
 			//~ std::cout << " " << *it;
 		//~ 
 	}
+	
+	//~ delete distances;
 }
 
 double Map::getTourDistance(vector<int>& nodes)
@@ -129,11 +117,6 @@ double Map::getTourDistance(tour* t) {
 	return getTourDistance(t->path);
 }
 
-vector<int> Map::getNeighbourhood(int cityID) {
+vector<int>* Map::getNeighbourhood(int cityID) {
 	return neighbourMap[cityID];
 }
-
-//~ void Map::setTourDistance(tour* t)
-//~ {
-	//~ t->cost = getTourDistance(t->path);
-//~ }

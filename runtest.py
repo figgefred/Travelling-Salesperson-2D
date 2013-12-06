@@ -19,7 +19,7 @@ def runtest(executable, test):
 		
 	stdout, stderr = p.communicate(input=data)
 	if stderr or stdout == "":
-		raise Exception(stderr)
+		raise Exception("Stderr: " + stderr)
 		
 		
 	endtime = time.time() - starttime
@@ -36,7 +36,7 @@ def getPathDistance(positions, path):
 	visited.add(path[0])
 	for next in path[1:]:		
 		if next in visited:
-			raise Exception("Validation failed. Revisited the same node! Node: " + next)
+			raise Exception("Validation failed. Revisited the same node! Node: " + str(next))
 			
 		visited.add(next)
 		nextPos = positions[next]

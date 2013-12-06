@@ -17,11 +17,6 @@ tour* NaiveGreedy::naiveTspPath(Map* map)
 		path.push_back(0);
 	}
 	used[0] = true;
-
-	
-	
-	
-	
 	path[0] = 0;	
 	//~ double totalcost = 0.0;
 	
@@ -49,12 +44,7 @@ tour* NaiveGreedy::naiveTspPath(Map* map)
 		#endif
 		path[i] = best;
 		used[best] = true;
-		//~ totalcost += cost;
 	}
-
-	// Add last step back to origin
-	//~ totalcost += map->getDistance(newTour->path[N-1], newTour->path[0]);
-	//~ newTour->cost = totalcost;
-	//exit(0);	
+	
 	return new tour(path);
 }

@@ -116,38 +116,42 @@ bool TwoOpt::findNewTour(tour* t) {
 	int besti = -1;
 	int bestj = -1;
 	unsigned int size = t->path.size();
-	vector<int> path = t->path;	
-	for(unsigned int i = 0; i < size; ++i)
+	for(unsigned int i = 1; i < size; ++i)
 	{
 		int city = t->path[i];
-		vector<int> closest_neighbours = map->getNeighbourhood(city);
-		for(unsigned int j = 0; j < closest_neighbours.size(); ++j)
-		{	
-			int city2 = closest_neighbours[j];
-			unsigned int index = t->reverse_map[city2];
+		double maxdistallowed = map->getDistance(i,i);
+		//~ vector<int>* closest_neighbours = map->getNeighbourhood(city);
+		for(unsigned int j = i+1; j < size; ++j)
+		{				
+			if(map->getDistance(i,j) > maxdistallowed)
+				continue;
+			
+			//~ int city2 = closest_neighbours->at(j);			
+			//~ unsigned int index = t->reverse_map[city2];
 
-			double cost = (i < index) ? getNewCost(t, i, index) : getNewCost(t, index, i);
+			double cost = (i < j) ? getNewCost(t, i, j) : getNewCost(t, j, i);
+			//~ double cost = getNewCost(t, i, j);
 			//~ cout << cost << endl;
+			
+			
 			if(cost < bestcost) {									
 				bestcost = cost;
 				besti = i;
-				bestj = index;
-				//~ cout << i << " " << index << endl;				
+				bestj = j;
+				//~ cout << i << " " << j << endl;				
 			}		
 		}	
 	}	
 
 	if(besti < 0)
 		return false;
-		
-	//~ cout << "derp" << endl;
+
 	int tmp = t->path[bestj];
 	t->path[bestj] = t->path[besti];
-	t->reverse_map[t->path[besti]] = bestj;
+	//~ t->reverse_map[t->path[besti]] = bestj;
 	t->path[besti] = tmp;	
-	t->reverse_map[tmp] = besti;
+	//~ t->reverse_map[tmp] = besti;
 	t->cost += bestcost;
-	//~ cout << "size: " << t->path.size() << " -> " << bestj << endl;
 	
 	return true;
 }
@@ -164,8 +168,6 @@ tour* TwoOpt::getBetterTour(tour* t)
 		//~ cout << t->cost << endl;
 		i++;
 	}
-		
-	
 	
 	//~ cout << "Attempts: " << i << " " << ((timedout) ? "true" : "false") << endl;
 	

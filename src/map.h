@@ -3,28 +3,25 @@
 #include <vector>
 #include "types.h"
 
-#define ADJACENCY_LIST_SIZE 5
+#define ADJACENCY_LIST_SIZE 200
 
 class Map
 {
-		double** distance_mat;
-		std::vector<coordinate*> cities;
-		std::vector< std::vector<int> > neighbourMap;
+		double** distance_mat;		
+		std::vector< std::vector<int>* > neighbourMap;
 		int dim;
 
 		double calculateDistance(coordinate*, coordinate*);
-		void setDistanceMatrix();
+		void setDistanceMatrix(std::vector<coordinate*>* cities);
 		void setNeighbourMap();
 		
 	public:
-		Map (std::vector<coordinate*>);
+		Map (std::vector<coordinate*>*);
 		~Map();
-		std::vector<coordinate*> getCities();
-		std::vector<int> getNeighbourhood(int cityID);
+		std::vector<int>* getNeighbourhood(int cityID);
 		int getDimension();
 		double getDistance(int, int);
-		coordinate* getCityCoordinate(int);
-		//~ void setTourDistance(tour*);
+		//~ coordinate* getCityCoordinate(int);
 		double getTourDistance(std::vector<int>&);
 		double getTourDistance(tour* t);
 

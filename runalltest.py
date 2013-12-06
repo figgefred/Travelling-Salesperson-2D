@@ -14,9 +14,12 @@ testdir = "tests/"
 
 if len(sys.argv) < 2:
 	print """
-	USAGE: runalltests.py <path_to_executable>
+	USAGE: runalltests.py <path_to_executable> [testdir]
 	"""
 	exit(1)
+
+if len(sys.argv) > 2:
+	testdir = sys.argv[2];
 
 q = Queue()
 for (dirpath, dirnames, filenames) in walk(testdir):
@@ -54,7 +57,7 @@ for _ in range(num_threads):
 	
 while not q.empty():
 	time.sleep(1) # yield
-	print "Queue left: ", q.qsize()
+	print "Queue size: ", q.qsize()
 
 
 			
