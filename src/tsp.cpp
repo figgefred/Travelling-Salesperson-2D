@@ -17,7 +17,6 @@
 
 using namespace std;
 
-//#define PRINT
 #define KATTIS
 //#define DEBUG_TRACE
 
@@ -25,9 +24,6 @@ Map* map;
 
 void print_usage(string);
 vector<coordinate*>* getCitiesFromSTDin();
-vector<int> getPathFromFile(string);
-void printMapMatrix();
-void printMapCities();
 
 int main()
 {
@@ -44,19 +40,18 @@ int main()
 	}
 
 	map = new Map(cities);
-	LocalSearch* local_search = new TabuSearch(map);
-	//~ LocalSearch* local_search = new TwoOpt(map);
+	//~ LocalSearch* local_search = new TabuSearch(map);
+	LocalSearch* local_search = new TwoOpt(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
 	// christofides(map);
 	
+	// Startgissning
 	tour* curr_tour= greedy->naiveTspPath(map);	
-
-	#ifdef PRINT
-		cout << "\nNaive path: \n";
-		printTour(curr_tour);
-	#endif
 	
+	// Förbättring
 	curr_tour = local_search->getBetterTour(curr_tour);
+	
+	
 	printTour(curr_tour);
 
 	#ifdef DEBUG_TRACE

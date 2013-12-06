@@ -11,8 +11,7 @@ class TwoOpt : public LocalSearch
 		const static bool findBest = false;
 		
 		
-		tour* swap(tour* t, int from, int to, double cost);
-		//~ inline void swap(tour* t, int from, int to);
+		void swap(tour* t, int from, int to, double cost);
 		// what is the cost if we were to swap?
 		inline double getNewCost(tour* t, int from, int to);
 		bool findBestNewTour(tour* t, std::clock_t start);
