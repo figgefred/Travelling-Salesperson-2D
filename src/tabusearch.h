@@ -11,11 +11,13 @@ class TabuSearch : public LocalSearch
 	private:
 		std::unordered_set<int> tabu_list;
 		std::list<int> tabu_order;
-		void swap(std::vector<int>*, int, int);
+		
 		tour* flip(tour*, int, int );
+		tour* swap(tour* t, int from, int to, double cost);
 		double getNewCost(tour*, int, int);
-		tour* findNewTour(tour*);
-		bool isTabu(int);
+		bool findNewTour(tour*);
+		
+		inline bool isTabu(int);
 		void tabu_move(int);
 		void expire_move();
 
@@ -23,7 +25,6 @@ class TabuSearch : public LocalSearch
 		TabuSearch(Map*);
 		virtual ~TabuSearch();
 		virtual tour* getBetterTour(tour*);
-		virtual void reset();
 };
 
 #define _TABUSEARCH

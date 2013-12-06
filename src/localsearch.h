@@ -11,7 +11,6 @@ class LocalSearch
 	public:
 		virtual ~LocalSearch(){};
 		virtual tour* getBetterTour(tour*) = 0;
-		//~ virtual void reset() = 0;
 };
 
 #define _LOCALSEARCH

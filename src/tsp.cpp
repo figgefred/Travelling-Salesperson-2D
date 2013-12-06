@@ -29,8 +29,6 @@ vector<int> getPathFromFile(string);
 void printMapMatrix();
 void printMapCities();
 
-
-
 int main()
 {
 	vector<coordinate*>* cities = getCitiesFromSTDin();
@@ -47,18 +45,11 @@ int main()
 
 	map = new Map(cities);
 	LocalSearch* local_search = new TabuSearch(map);
+	//~ LocalSearch* local_search = new TwoOpt(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
+	// christofides(map);
 	
-	#ifdef DEBUG_TRACE
-		cout << "Done parsing" << endl;
-	#endif
-	
-	tour* curr_tour= greedy->naiveTspPath(map);
-	//~ cout << "size: " << curr_tour->path.size() << " -> " << endl;
-	
-	#ifdef DEBUG_TRACE
-		cout << "Done Touring" << endl;
-	#endif
+	tour* curr_tour= greedy->naiveTspPath(map);	
 
 	#ifdef PRINT
 		cout << "\nNaive path: \n";
@@ -72,44 +63,15 @@ int main()
 		LocalSearch* local_search_2 = new TwoOpt(map);
 		tour* ref_tour= greedy.naiveTspPath(map);
 		cout << "TABU-cost: " << curr_tour->cost << endl;
-		cout << "Greedy-cost: " << ref_tour->cost << endl;
-		//printTour(ref_tour);
+		cout << "Greedy-cost: " << ref_tour->cost << endl;		
 		local_search_2->getBetterTour(ref_tour);
-		cout << "Two-2-cost: " << ref_tour->cost << endl;
-		//printTour(ref_tour);
+		cout << "Two-2-cost: " << ref_tour->cost << endl;		
 	#endif
-	
-	// christofides(map);
 
 	// Free resources
 	delete local_search;
 	delete map;
 	delete curr_tour;
-}
-
-//~ void printMapCities()
-//~ {
-	//~ cout << "\n\nCITIES \n";
-	//~ vector<coordinate*> cities = map->getCities();
-	//~ int count = map->getDimension();
-	//~ for(int i = 0; i < count; i++)
-	//~ {
-		//~ cout << "[" << i << "]: (" << cities[i]->x << ", " << cities[i]->y << ") \n";
-	//~ }
-//~ }
-
-void printMapMatrix()
-{
-	cout << "\n\nDISTANCE MATRIX \n";
-	int count = map->getDimension();
-	for(int i = 0; i < count; i++)
-	{
-		for(int j = 0; j < count; j++)
-		{
-			cout << map->getDistance(i, j) << " ";
-		}
-		cout << "\n";
-	}
 }
 
 vector<coordinate*>* getCitiesFromSTDin()
