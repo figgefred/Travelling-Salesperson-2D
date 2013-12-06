@@ -121,7 +121,7 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 }
 
 // Public
-int tabu_max = 10;
+int tabu_max = 100;
 
 tour* TabuSearch::getBetterTour(tour* t)
 {	
@@ -136,15 +136,18 @@ tour* TabuSearch::getBetterTour(tour* t)
 		
 		if(!findNewTour(t))
 		{		
-			break;
+			if(tabu_list.size() == 0)			
+				break;
+			else
+				tabu_list.clear();
 		}
 		
 		//~ cout << t->cost << endl;
 		
-		if(counter % 2 == 0)
-		{
-			tabu_list.clear();
-		}
+		//~ if(counter % 2 == 0)
+		//~ {
+			//~ tabu_list.clear();
+		//~ }
 	} while(deadline > std::clock());
 	
 	//~ cout << "Attempts: " << counter << endl;
@@ -164,9 +167,9 @@ bool TabuSearch::findNewTour(tour* t)
 	bool changed = false;
 
 	int last_candidate = -1;
-	for(int i = 1; i < count; i++)
+	for(int i = 1; i < count; i++) 
 	{
-		for(int j = i+1; j < count; j++)
+		for(int j = i+1; j < count; j++) 
 		{
 			int candidate = t->path[j];
 
