@@ -121,13 +121,18 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 }
 
 // Public
-int tabu_max = 100;
+int tabu_max = 8;
 
 tour* TabuSearch::getBetterTour(tour* t)
 {	
 	std::clock_t start = std::clock();   
 	t->cost = map->getTourDistance(t);	
-	
+		
+	int N = t->path.size();
+	if(tabu_max > N/2)
+		tabu_max = N/2;
+
+
 	int counter = 0;	
 	std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
 	do
