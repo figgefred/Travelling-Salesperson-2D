@@ -3,7 +3,7 @@
 #include <vector>
 #include "types.h"
 
-#define ADJACENCY_LIST_SIZE 1000
+#define ADJACENCY_LIST_SIZE 100
 
 class Map
 {

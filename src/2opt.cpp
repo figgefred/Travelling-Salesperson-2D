@@ -44,6 +44,7 @@ double TwoOpt::getNewCost(tour* t, int i1, int i2) {
 	cost += map->getDistance(e1, e2);	
 	cost += map->getDistance(s2, s1);	
 	
+	// Fix for rounding errors. #fulhack
 	if(cost > -0.00001)
 		return 0;
 	
@@ -76,8 +77,14 @@ bool TwoOpt::findBestNewTour(tour* t, std::clock_t deadline) {
 	unsigned int size = t->path.size();
 	for(unsigned int i = 1; i < size && std::clock() < deadline; ++i)
 	{	
+		int city = t->path[i];
+		double maxAllowedDist = map->getDistance(city,city);
+		
 		for(unsigned int j = i+1; j < size; ++j)
 		{				
+			if(maxAllowedDist < map->getDistance(city,t->path[j]))
+				continue;
+			
 			double cost = getNewCost(t, i, j);
 			
 			if(cost < bestcost) {									

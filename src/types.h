@@ -27,6 +27,10 @@ struct tour {
 		path = p;				
 		cost = 0.0;
 	}
+	
+	tour() {
+		cost = 0.0;
+	}
 
 	~tour() {
 		//delete path;

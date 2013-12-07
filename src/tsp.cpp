@@ -15,6 +15,7 @@
 #include "tabusearch.h"
 #include "naivegreedy.h"
 #include "2opt.h"
+#include "simulatedannealing.h"
 
 using namespace std;
 
@@ -43,7 +44,8 @@ int main()
 
 	map = new Map(cities);
 	//~ LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
+	//~ LocalSearch* local_search = new TwoOpt(map);
+	LocalSearch* local_search = new SimulatedAnnealing(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
 	// christofides(map);		
 	
@@ -51,9 +53,9 @@ int main()
 	double bestcost = 0;
 	
 	int i = 0;
-	for(; std::clock() < deadline; i++)
-	{
-		i = i % map->getDimension();
+	//~ for(; std::clock() < deadline; i++)
+	//~ {
+		//~ i = i % map->getDimension();
 		
 		// Startgissning
 		tour* curr_tour = greedy->naiveTspPath(map, i);
@@ -67,8 +69,8 @@ int main()
 			best_tour = curr_tour;			
 		}
 		
-		//~ delete curr_tour;
-	}
+		
+	//~ }
 	
 	
 	// Output.
