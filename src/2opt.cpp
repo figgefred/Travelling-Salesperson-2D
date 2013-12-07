@@ -55,9 +55,15 @@ bool TwoOpt::findNewTour(tour* t, std::clock_t deadline) {
 	unsigned int size = t->path.size();
 	bool changed = false;
 	for(unsigned int i = 1; i < size && std::clock() < deadline; ++i)
-	{		
+	{	
+		int city = t->path[i];
+		double maxAllowedDist = map->getDistance(city,city);	
+		
 		for(unsigned int j = i+1; j < size; ++j)
-		{				
+		{			
+			if(maxAllowedDist < map->getDistance(city,t->path[j]))
+				continue;
+				
 			double cost = getNewCost(t, i, j);
 			
 			if(cost < 0) {	
@@ -113,14 +119,13 @@ tour* TwoOpt::getBetterTour(tour* t, std::clock_t deadline)
 	
 	while(!timedout){
 		i++;
-		bool done = !(this->*twoOptfunc)(t, deadline);
-		timedout = std::clock() > deadline;
+		bool done = !(this->*twoOptfunc)(t, deadline);		
 		if(done)
 			break;
+		timedout = std::clock() > deadline;
 		//~ cout << t->cost << endl;
 		
-	}
-	
+	}	
 	//~ cout << "Attempts: " << i << " " << ((timedout) ? "true" : "false") << endl;
 	
 	return t;	
