@@ -1,8 +1,9 @@
 
 //#include <math.h>
 #include <vector>
+#include <utility>	// pair
 #include <stdlib.h>
-#include <iostream>
+#include <iostream> // cout
 #include <unordered_set>
 #include <list>
 
@@ -17,30 +18,69 @@ using namespace std;
 TabuSearch::TabuSearch(Map* m)
 {
 	map = m;
+	tabu_dim = map->getDimension();
+	tabu_record = new int*[tabu_dim];
+	for(int i = 0; i < tabu_dim; i++)
+	{
+		tabu_record[i] = new int[tabu_dim];
+		for(int j = 0; j < tabu_dim; j++)
+		{
+			tabu_record[i][j] = 0;  
+		}
+	}
 }
 
 TabuSearch::~TabuSearch()
 {
-
+	for(int i = 0; i < tabu_dim; i++)
+	{
+		delete tabu_record[i];
+	}
+	delete tabu_record;
 }
 
 // Private
-void TabuSearch::tabu_move(int candidate)
+void TabuSearch::tabu_move(int c1, int c2)
 {
-	tabu_list.insert(candidate);
-	tabu_order.push_back(candidate);
+	//double d = map->getDistance(c1, c2);
+	//tabu_list.insert(edge(c1, c2, d));
+	//tabu_order.push_back(edge(c1, c2, d));
+	tabu_record[c1][c2] += 1;
+	tabu_record[c2][c1] += 1;
+	tabu_order.push_back(c1);
+	tabu_order.push_back(c2);
 }
 
-bool TabuSearch::isTabu(int city)
+bool TabuSearch::isTabu(int c1, int c2)
 {
-	return tabu_list.find(city) != tabu_list.end();
+	//return tabu_list.find(edge(c1, c2, map->getDistance(c1, c2))) != tabu_list.end();
+	return tabu_record[c1][c2] != 0;
+}
+
+pair<int, int> TabuSearch::popTabu()
+{
+	std::pair<int, int> edge;
+
+	edge = make_pair( *(tabu_order.begin()), *(++tabu_order.begin()));
+	expire_move();
+	return edge;
 }
 
 void TabuSearch::expire_move()
 {
-	int cand = tabu_order.front();
-	tabu_list.erase(cand);
+	int c1 = tabu_order.front();
 	tabu_order.pop_front();
+	int c2 = tabu_order.front();
+	tabu_order.pop_front();
+	//while(tabu_record[c1][c2] == 0)
+	//{
+	//	c1 = tabu_order.front();
+		//tabu_order.pop_front();
+		// = tabu_order.front();
+		//tabu_order.pop_front();
+	//}
+	tabu_record[c1][c2] -= 1;
+	tabu_record[c2][c1] -= 1;
 }
 
 // http://en.wikipedia.org/wiki/2-opt
@@ -121,7 +161,7 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 }
 
 // Public
-int tabu_max = 8;
+int tabu_max = 10;
 
 tour* TabuSearch::getBetterTour(tour* t)
 {	
@@ -141,10 +181,34 @@ tour* TabuSearch::getBetterTour(tour* t)
 		
 		if(!findNewTour(t))
 		{		
-			if(tabu_list.size() == 0)			
+			if(tabu_order.size() == 0)			
 				break;
 			else
-				tabu_list.clear();
+			{
+				// Initiate default aspiration behavior
+				expire_move();
+
+				// Copy tour and fetch an edge to swap
+				//int count = t->path.size();
+				/*vector<int> tmp(count, count);
+				tour* newTour = new tour(tmp);
+				for(int i = 0; i < count; i++)
+				{
+					newTour->path[i] = t->path[i];
+				}*/
+				
+				/*double diff = 0.0;
+				pair<int, int> edge;
+				do
+				{
+					edge = popTabu();
+					diff = getNewCost(t, edge.first, edge.second);
+				} while(tabu_order.size() != 0);*/
+			}
+		}
+		while(tabu_order.size() > tabu_max)
+		{
+			expire_move();
 		}
 		
 		//~ cout << t->cost << endl;
@@ -163,13 +227,12 @@ tour* TabuSearch::getBetterTour(tour* t)
 bool TabuSearch::findNewTour(tour* t)
 {
 	// Tour size
-	
 	int count = t->path.size();
 	// Some initial values
 	int cIndex1 = -1;
 	int cIndex2 = -1;
-	//double bestCostDiff = 0;
-	bool changed = false;
+	double bestDiff = 0.0;
+	//bool changed = false;
 
 	int last_candidate = -1;
 	for(int i = 1; i < count; i++) 
@@ -178,26 +241,39 @@ bool TabuSearch::findNewTour(tour* t)
 		{
 			int candidate = t->path[j];
 
-			if(isTabu(candidate) || i == j)
+			if(isTabu(t->path[i], candidate))
 			{
 				continue;
 			}
 			double diff = getNewCost(t, i, j);
 			//if(new_tour->cost < tour_cost)
-			if(diff < 0)
+			if(diff < bestDiff)
 			{
+				cIndex1 = i;
+				cIndex2 = j;
+				bestDiff = diff;
 				//~ tour* new_tour = flip(t, i, j);
-				swap(t, i, j, diff);
+				/*swap(t, i, j, diff);
 				changed = true;
 				tabu_move(candidate);
+				tabu_move(t->path[i]);
 				while(tabu_list.size() > tabu_max)
 				{
 					expire_move();
-				}
+				}*/
 			}
 		}
 	}
-
-	return changed;		
+	if(bestDiff != 0.0)
+	{
+		swap(t, cIndex1, cIndex2, bestDiff);
+		tabu_move(t->path[cIndex1], t->path[cIndex2]);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	
 	//~ return t;
 }

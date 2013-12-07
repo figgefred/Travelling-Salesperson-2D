@@ -18,7 +18,7 @@
 using namespace std;
 
 //#define PRINT
-#define KATTIS
+//#define KATTIS
 //#define DEBUG_TRACE
 
 Map* map;
@@ -61,7 +61,7 @@ int main()
 
 	#ifdef DEBUG_TRACE
 		LocalSearch* local_search_2 = new TwoOpt(map);
-		tour* ref_tour= greedy.naiveTspPath(map);
+		tour* ref_tour= greedy->naiveTspPath(map);
 		cout << "TABU-cost: " << curr_tour->cost << endl;
 		cout << "Greedy-cost: " << ref_tour->cost << endl;		
 		local_search_2->getBetterTour(ref_tour);
