@@ -15,12 +15,14 @@
 
 #define MAX_INT 2147483647
 #define PENALTY 10
-#define TABU_LENGTH 20
-
+//#define TABU_LENGTH 20
+//#define DEBUG_TRACE
 using namespace std;
 
-int tabu_delay = 5;
+int tabu_delay = 35;
 std::clock_t deadline;
+//double GlobalBestCost = MAX_INT;
+int TABU_LENGTH;
 
 TabuSearch::TabuSearch(Map* m)
 {
@@ -50,9 +52,20 @@ TabuSearch::~TabuSearch()
 // Private
 void TabuSearch::tabu_move(int c1, int c2)
 {
-	tabu_record[c1][c2] = tabu_delay + TABU_LENGTH;
-	tabu_record[c2][c1] = tabu_delay + TABU_LENGTH;
+	tabu_record[c1][c2] = tabu_delay;// + TABU_LENGTH;
+	tabu_record[c2][c1] = tabu_delay;// + TABU_LENGTH;
 	tabu_list.push_back(city_edge(c1, c2));
+}
+
+void TabuSearch::clear_tabu()
+{
+	for(auto itr = tabu_list.cbegin(); itr != tabu_list.cend(); ++itr)
+	{
+		city_edge e = *(itr);
+		tabu_record[e.c1][e.c2] = 0;
+		tabu_record[e.c2][e.c1] = 0;
+	}
+	tabu_list.clear();
 }
 
 bool TabuSearch::isTabu(int c1, int c2)
@@ -170,7 +183,7 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 }
 
 // Public
-
+int globalCost = MAX_INT;
 tour* TabuSearch::getBetterTour(tour* initTour, std::clock_t d)
 {	
 	std::clock_t start = std::clock();   
@@ -180,28 +193,36 @@ tour* TabuSearch::getBetterTour(tour* initTour, std::clock_t d)
 	if(tabu_delay > N/2)
 		tabu_delay = N/2;
 
+	TABU_LENGTH = N/50;
+	if(TABU_LENGTH < 1)
+		TABU_LENGTH = 1;
+
 	tour* bestTour = new tour(initTour->path);
 	bestTour->cost = initTour->cost;
 
 	tour* t;
 	//t->cost = initTour->cost;
-
+	int failed = 0;
 	int counter = 0;	
 	//std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
 	deadline = d;
 
-	for(tabu_delay = 5; tabu_delay < N/2 && deadline > std::clock(); tabu_delay++)
-	{
-		//cout << "WHOOP LOOP DELAY="<< tabu_delay << endl;
-		t = new tour(initTour->path);
-		t->cost = initTour->cost;
+//	for(tabu_delay = 5s; tabu_delay < 11 && deadline > std::clock(); tabu_delay++)
+//	{
+	//	while(TABU_LENGTH < tabu_list.size())
+	//		expire_move();
+
+		t = new tour(bestTour->path);
+		t->cost = bestTour->cost;
+//		if(tabu_list.size() > 0)
+			//clear_tabu();
 		do
 		{
 			counter++;
 			bool foundTour = findNewTour(t);
 			if(!foundTour)
 			{
-				if(tabu_list.size() == 0)			
+				if(++failed == 100 || tabu_list.size() == 0)			
 				{
 					break;
 				}
@@ -212,29 +233,41 @@ tour* TabuSearch::getBetterTour(tour* initTour, std::clock_t d)
 				}
 			}
 			//escapeZone = false;
-
+			failed = 0;
 			double newCost = t->cost;
 			if(newCost < bestTour->cost)
 			{
 				bestTour->path = t->path;
-				bestTour->cost = newCost;			
-//				cout << "NEW SOLUTION cost=" << bestTour->cost << " tabu_count=" << tabu_list.size() << endl;
+				bestTour->cost = newCost;	
+				globalCost = newCost;	
+				#ifdef DEBUG_TRACE	
+					cout << "NEW SOLUTION cost=" << bestTour->cost << " tabu_count=" << tabu_list.size() << endl;
+					cout << "Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
+					cout << "TABUUUU-Attempts: " << counter << " delay: " << tabu_delay << endl;
+					cout << endl;
+				#endif
 			}
 			else
 			{
 //				cout << "NO SOLUTION cost=" << t->cost << " tabu_count=" << tabu_list.size() << endl;
+				failed++;
+				if(failed == 100)
+					break;
 			}
-	//		expire_move();
+			expire_move();	
 			//cout << "Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
 		} while(deadline > std::clock());
+	//	} while(true);
 		if(t->cost < bestTour->cost)
 		{
 			bestTour->path = t->path;
 			bestTour->cost = t->cost;			
 		}
 		delete t;
-	}
-	//cout << "TABUUUU-Attempts: " << counter << " delay: " << tabu_delay << endl;
+	//}
+		#ifdef DEBUG_TRACE
+			cout << "TABUUUU-Attempts: " << counter << " delay: " << tabu_delay << endl;
+		#endif
 	return bestTour;	
 }
 
@@ -246,53 +279,50 @@ bool TabuSearch::findNewTour(tour* t)
 	int cIndex1 = -1;
 	int cIndex2 = -1;
 	double bestDiff = MAX_INT;
+	double initCost = t->cost;
 	double bestCost = t->cost;
-	//bool first = true;
 
 	for(int i = 1; i < count; i++) 
 	{
+		double gran;
+		if(cIndex1 == -1)
+			gran = t->cost / ((double)count);
+		else
+			gran = (t->cost+bestDiff) / ((double)count);
 		for(int j = i+1; j < count; j++) 
 		{
 			int c1 = t->path[i];
 			int c2 = t->path[j];
-			if(tabu_record[c1][c2] > tabu_delay)
+			if(isTabu(c1, c2))
 			{
-				expire_move(c1, c2);
+				//expire_move(c1, c2);
 				continue;
 			}
 		
 			double diff = getNewCost(t, i, j);
-			if(diff < bestDiff)//bestDiff || first)//&& abs(diff - bestDiff) > graunularity )
+			double cost = bestCost + diff;
+			//double gran = abs(cost/initCost);
+			double gran = abs(cost/globalCost);
+			if(gran >  0.99 && gran <  1.01)
 			{
-				cIndex1 = i;
-				cIndex2 = j;
-				bestDiff = diff;
-				tabu_move(t->path[i], t->path[j]);
+				tabu_move(t->path[i], t->path[j]);	
+				continue;		
 			}
 
-			/*double tmpCost = (bestCost+diff);
-			double penaltyCost = tmpCost + tabu_record[c1][c2]/10;	
-			if(penaltyCost < bestCost)//bestDiff || first)//&& abs(diff - bestDiff) > graunularity )
+			if(diff < 0 || diff < bestDiff)//bestDiff || first)//&& abs(diff - bestDiff) > graunularity )
 			{
-				cout << "CurrTMPCost=" << tmpCost << endl;
-				cout << "penaltycost=" << penaltyCost << " bestcost is " << bestCost << endl;
 				cIndex1 = i;
 				cIndex2 = j;
 				bestDiff = diff;
-				bestCost = penaltyCost;
-
-				cout << "Set new cost to newCost=" << bestCost << " compared to " << t->cost << endl;
-				cout << endl;
-
-				tabu_move(t->path[i], t->path[j]);
-			}*/
-			expire_move(c1, c2);
+				bestCost = cost;		
+			}
 		}
 	}
 
 	if(cIndex1 != -1)//bestDiff != MAX_INT)
 	{
 		swap(t, cIndex1, cIndex2, bestDiff);
+		tabu_move(t->path[cIndex1], t->path[cIndex2]);			
 		return true;
 	}
 	return false;

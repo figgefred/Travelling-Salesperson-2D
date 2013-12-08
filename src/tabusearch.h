@@ -52,6 +52,7 @@ class TabuSearch : public LocalSearch
 		void tabu_move(int, int);
 		void expire_move();
 		void expire_move(int, int);
+		void clear_tabu();
 
 	public:
 		TabuSearch(Map*);
