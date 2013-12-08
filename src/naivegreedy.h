@@ -7,6 +7,7 @@ class NaiveGreedy {
 	
 	public:
 		tour* naiveTspPath(Map* map);
+		tour* naiveTspPath(Map* map, int startnode);
 	
 };
 

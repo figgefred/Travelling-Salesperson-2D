@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <list>
+#include <ctime>
 
 struct edge {
 	int c1;
@@ -54,7 +55,7 @@ class TabuSearch : public LocalSearch
 	public:
 		TabuSearch(Map*);
 		virtual ~TabuSearch();
-		virtual tour* getBetterTour(tour*);
+		virtual tour* getBetterTour(tour*, std::clock_t);
 };
 
 #define _TABUSEARCH

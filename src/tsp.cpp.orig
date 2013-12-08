@@ -10,7 +10,7 @@
 
 #include "map.h"
 #include "types.h"
-#include "minspan.h"
+#include "christofides.h"
 #include "localsearch.h"
 #include "tabusearch.h"
 #include "naivegreedy.h"
@@ -19,7 +19,12 @@
 
 using namespace std;
 
+<<<<<<< HEAD
 #define KATTIS
+=======
+//#define PRINT
+//#define KATTIS
+>>>>>>> c48f632b8081cd8e593af7784bf598d4aa9c4ba3
 //#define DEBUG_TRACE
 
 Map* map;
@@ -43,16 +48,11 @@ int main()
 	}
 
 	map = new Map(cities);
-<<<<<<< HEAD
-	//LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
-=======
 	//~ LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
-	//~ LocalSearch* local_search = new SimulatedAnnealing(map);
->>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
+	//~ LocalSearch* local_search = new TwoOpt(map);
+	LocalSearch* local_search = new SimulatedAnnealing(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
-	//~ // christofides(map);	
+	// christofides(map);		
 	
 	tour* best_tour = NULL;
 	double bestcost = 0;
@@ -63,8 +63,7 @@ int main()
 		//~ i = i % map->getDimension();
 		
 		// Startgissning
-		//~ tour* curr_tour = greedy->naiveTspPath(map, i);
-		tour* curr_tour = approxTSP(map);
+		tour* curr_tour = greedy->naiveTspPath(map, i);
 		// Förbättring
 		curr_tour = local_search->getBetterTour(curr_tour, deadline);
 		
@@ -74,7 +73,7 @@ int main()
 			bestcost = curr_tour->cost;
 			best_tour = curr_tour;			
 		}
-		//~ 
+		
 		
 	//~ }
 	
@@ -85,6 +84,21 @@ int main()
 	//~ cout << "Runs: " << i << endl;
 	
 	
+<<<<<<< HEAD
+=======
+	curr_tour = local_search->getBetterTour(curr_tour);
+	printTour(curr_tour);
+
+	#ifdef DEBUG_TRACE
+		LocalSearch* local_search_2 = new TwoOpt(map);
+		tour* ref_tour= greedy->naiveTspPath(map);
+		cout << "TABU-cost: " << curr_tour->cost << endl;
+		cout << "Greedy-cost: " << ref_tour->cost << endl;		
+		local_search_2->getBetterTour(ref_tour);
+		cout << "Two-2-cost: " << ref_tour->cost << endl;		
+	#endif
+
+>>>>>>> c48f632b8081cd8e593af7784bf598d4aa9c4ba3
 	// Free resources
 	delete local_search;
 	delete map;

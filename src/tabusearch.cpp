@@ -159,7 +159,11 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 
 // Public
 
+<<<<<<< HEAD
 tour* TabuSearch::getBetterTour(tour* initTour)
+=======
+tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
+>>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
 {	
 	std::clock_t start = std::clock();   
 	initTour->cost = map->getTourDistance(initTour);	
@@ -175,7 +179,11 @@ tour* TabuSearch::getBetterTour(tour* initTour)
 	t->cost = initTour->cost;
 
 	int counter = 0;	
+<<<<<<< HEAD
 	//std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+=======
+	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+>>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
 	do
 	{
 		counter++;
