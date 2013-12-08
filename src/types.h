@@ -22,6 +22,7 @@ struct coordinate {
 struct tour {
 	double cost;
 	std::vector<int> path;	
+	std::vector<int> reverse;
 
 	tour(std::vector<int> p) {
 		path = p;				

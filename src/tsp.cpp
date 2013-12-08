@@ -53,32 +53,36 @@ int main()
 	
 	int i = 0;
 	int improvements = 0;
-	for(; std::clock() < deadline; i++)
-	{
+	//~ for(; std::clock() < deadline; i++)
+	//~ {
 		//~ i = i % map->getDimension();
 		
 		// Startgissning
 		tour* curr_tour = greedy->naiveTspPath(map, rand() % map->getDimension());
 		//~ tour* curr_tour = approxTSP(map);
 		
+		double greedy_cost = curr_tour->cost;
+		
+		
 		// Förbättring
 		curr_tour = local_search->getBetterTour(curr_tour, deadline);
 		
-		//~ cout << i << " " << curr_tour->cost << endl;
-		cout << curr_tour->cost << endl;
+		//~ cout << i << " "  << greedy_cost << " -> " << curr_tour->cost << endl;
 		
-		if(best_tour->cost < 0 || curr_tour->cost < best_tour->cost) {
-			best_tour->path = curr_tour->path;			
-			best_tour->cost = curr_tour->cost;
+		if(best_tour->cost < 0 || curr_tour->cost < best_tour->cost) {			
+			tour* tmp = best_tour;
+			best_tour = curr_tour;
+			curr_tour = tmp;			
 			improvements++;
-			
 		}		
 		
-		delete curr_tour;
-	}
-	cout << improvements << endl;
+		//~ delete curr_tour;
+	//~ }
+	
+	//~ cout << "Improvements: " << improvements << endl;
+	
 	// Output.
-	//~ printTour(best_tour);
+	printTour(best_tour);
 	
 	// Free resources
 	delete local_search;

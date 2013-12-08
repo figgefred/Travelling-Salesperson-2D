@@ -20,7 +20,7 @@ tour* NaiveGreedy::naiveTspPath(Map* map, int startnode) {
 		used[i] = false;
 		path.push_back(0);
 	}
-	used[0] = true;
+	used[startnode] = true;
 	path[0] = startnode;	
 	//~ double totalcost = 0.0;
 	
@@ -50,5 +50,7 @@ tour* NaiveGreedy::naiveTspPath(Map* map, int startnode) {
 		used[best] = true;
 	}
 	
-	return new tour(path);
+	tour* tmp = new tour(path);
+	tmp->cost = map->getTourDistance(tmp);
+	return tmp;
 }

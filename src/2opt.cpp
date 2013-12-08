@@ -5,25 +5,26 @@
 #include <ctime>
 #include <algorithm>
 
+
 using namespace std;
 
 TwoOpt::TwoOpt(Map* map) {
 	this->map = map;	
 	
-	#ifdef USE_ADJACENCY
+	#ifdef USE_ADJACENCY	
 	setAdjacencyThresholds();
 	#endif
 }
 
 void TwoOpt::setAdjacencyThresholds() {
 	// Adjancency lists...
-	vector<double> distances; // = new vector<double>();	
-	
+	vector<double> distances; 
 	int dim = map->getDimension();
 	int pos = (dim > ADJACENCY_LIST_SIZE) ?  ADJACENCY_LIST_SIZE - 2 : dim - 2;	
 	this->adjacencyThresholds = new double[dim];
 	
-	for(int i = 0; i < dim; ++i) {		
+	for(int i = 0; i < dim; ++i) {	
+		vector<int>* neighbours = new vector<int>;
 		for(int j = 0; j < dim; ++j) {
 			if(i == j) continue;
 			distances.push_back(map->getDistance(i,j));
@@ -31,12 +32,19 @@ void TwoOpt::setAdjacencyThresholds() {
 		
 		sort(distances.begin(), distances.end());		
 		
-		this->adjacencyThresholds[i] = distances.at(pos);					
+		this->adjacencyThresholds[i] = distances.at(pos);		
 		
+		for(int j = 0; j < dim; ++j) {
+			if(i == j) continue;
+			if(map->getDistance(i,j) <= this->adjacencyThresholds[i])				
+				neighbours->push_back(j);
+		}
+		//~ cout << neighbours->size() << endl;
+		
+		
+		this->adjacencyLists.push_back( neighbours );
 		distances.clear();
 	}
-	
-	//~ delete distances;
 }
 
 // From wikipedia psuedocode:
@@ -52,7 +60,9 @@ void TwoOpt::swap(tour* t, int from, int to, double cost)
 		int right = to-i;						
 		int tmp = t->path[left];		
 		t->path[left] = t->path[right];
+		t->reverse[t->path[right]] = left;
 		t->path[right] = tmp;
+		t->reverse[tmp] = right;
 	}
 	
 	t->cost += cost;		
@@ -85,22 +95,41 @@ bool TwoOpt::findNewTour(tour* t, std::clock_t deadline) {
 	bool changed = false;
 	for(unsigned int i = 1; i < size && std::clock() < deadline; ++i)
 	{	
-		#ifdef USE_ADJACENCY
-		int city = t->path[i];
-		double maxAllowedDist = adjacencyThresholds[city];	
-		#endif
-		for(unsigned int j = i+1; j < size; ++j)
+		//~ #ifdef USE_ADJACENCY
+		//~ int city = t->path[i];
+		//~ double maxAllowedDist = adjacencyThresholds[city];	
+		//~ #endif
+		
+		vector<int>* adjacent = this->adjacencyLists[t->path[i]];
+		for(unsigned int c = 0; c < adjacent->size(); ++c)
 		{		
-			#ifdef USE_ADJACENCY	
-			if(maxAllowedDist < map->getDistance(city,t->path[j]))
+			int city = adjacent->at(c);
+			int j = t->reverse[city];
+			
+			if(j == 0)
 				continue;
-			#endif
+			
+		//~ 
+		//~ for(unsigned int j = i+1; j < size; ++j)
+		//~ {		
+			//~ #ifdef USE_ADJACENCY	
+			//~ if(maxAllowedDist < map->getDistance(city,t->path[j]))
+				//~ continue;
+			//~ #endif
 				
-			double cost = getNewCost(t, i, j);
+			double cost = (i < j) ? getNewCost(t, i, j) : getNewCost(t, j, i);
 			
 			if(cost < 0) {	
-				swap(t, i, j, cost);
-				changed = true;												
+				//~ cout << adjacent->at(c) << " " << j << " " << t->path[j] <<  endl;
+				//~ cout << i << " " << j << " " << cost << endl;
+				
+				if(i < j)
+					swap(t, i, j, cost);
+				else
+					swap(t, j, i, cost);
+					
+				
+				changed = true;					
 			}		
 		}	
 	}	
@@ -146,10 +175,18 @@ bool TwoOpt::findBestNewTour(tour* t, std::clock_t deadline) {
 
 tour* TwoOpt::getBetterTour(tour* t, std::clock_t deadline)
 {	
-	int i = 0;
-	t->cost = map->getTourDistance(t);		
+	int i = 0;	
 	bool timedout = false;
 	bool (TwoOpt::*twoOptfunc) (tour*, clock_t) = (TwoOpt::findBest) ? &TwoOpt::findBestNewTour : &TwoOpt::findNewTour;
+	
+	for(int i = 0; t->reverse.size() < t->path.size(); ++i) {
+		t->reverse.push_back(0);
+	}
+	
+	for(int i = 0; i < t->path.size(); ++i) {
+		t->reverse[t->path[i]] = i;
+	}
+	
 	
 	while(!timedout){
 		i++;

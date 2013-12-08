@@ -4,14 +4,16 @@
 #include "types.h"
 #include "map.h"
 #include <ctime>
+#include <vector>
 
 #define USE_ADJACENCY
-#define ADJACENCY_LIST_SIZE 400
+#define ADJACENCY_LIST_SIZE 100
 
 class TwoOpt : public LocalSearch
 {	
 	protected: 
 		double* adjacencyThresholds;
+		std::vector<std::vector<int>*> adjacencyLists;
 		const static bool findBest = false;
 		
 		void swap(tour* t, int from, int to, double cost);

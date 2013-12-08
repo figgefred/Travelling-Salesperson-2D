@@ -1,5 +1,5 @@
 
-//#include <math.h>
+#include <cmath>
 #include <vector>
 #include <utility>	// pair
 #include <stdlib.h>
@@ -15,6 +15,11 @@
 
 using namespace std;
 
+int tabu_delay = 5;
+std::clock_t deadline;
+const int MAX_INT = 2147483647;
+const double graunularity = 0.00001;
+
 TabuSearch::TabuSearch(Map* m)
 {
 	map = m;
@@ -27,6 +32,7 @@ TabuSearch::TabuSearch(Map* m)
 		{
 			tabu_record[i][j] = 0;  
 		}
+		//tabu_count.push_back(0);
 	}
 }
 
@@ -42,45 +48,36 @@ TabuSearch::~TabuSearch()
 // Private
 void TabuSearch::tabu_move(int c1, int c2)
 {
-	//double d = map->getDistance(c1, c2);
-	//tabu_list.insert(edge(c1, c2, d));
-	//tabu_order.push_back(edge(c1, c2, d));
-	tabu_record[c1][c2] += 1;
-	tabu_record[c2][c1] += 1;
-	tabu_order.push_back(c1);
-	tabu_order.push_back(c2);
+	tabu_record[c1][c2] += tabu_delay;
+	tabu_record[c2][c1] += tabu_delay;
+	tabu_list.push_back(city_edge(c1, c2));
 }
 
 bool TabuSearch::isTabu(int c1, int c2)
 {
-	//return tabu_list.find(edge(c1, c2, map->getDistance(c1, c2))) != tabu_list.end();
 	return tabu_record[c1][c2] != 0;
-}
-
-pair<int, int> TabuSearch::popTabu()
-{
-	std::pair<int, int> edge;
-
-	edge = make_pair( *(tabu_order.begin()), *(++tabu_order.begin()));
-	expire_move();
-	return edge;
 }
 
 void TabuSearch::expire_move()
 {
-	int c1 = tabu_order.front();
-	tabu_order.pop_front();
-	int c2 = tabu_order.front();
-	tabu_order.pop_front();
-	//while(tabu_record[c1][c2] == 0)
-	//{
-	//	c1 = tabu_order.front();
-		//tabu_order.pop_front();
-		// = tabu_order.front();
-		//tabu_order.pop_front();
-	//}
-	tabu_record[c1][c2] -= 1;
-	tabu_record[c2][c1] -= 1;
+	vector<city_edge> toRemove;
+	for(auto itr = tabu_list.cbegin(); itr != tabu_list.cend(); ++itr)
+	{
+		city_edge e = *(itr);
+		tabu_record[e.c1][e.c2] -= 1;
+		tabu_record[e.c2][e.c1] -= 1;
+		if(tabu_record[e.c1][e.c2] == 0)
+		{
+		//	tabu_list.erase(*itr);
+			toRemove.push_back(e);
+		}
+	}
+
+	// Clear
+	for(int i = 0; i < toRemove.size(); i++)
+	{
+		tabu_list.remove(toRemove[i]);
+	}
 }
 
 // http://en.wikipedia.org/wiki/2-opt
@@ -161,78 +158,88 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 }
 
 // Public
-int tabu_max = 10;
 
-tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
+tour* TabuSearch::getBetterTour(tour* initTour, std::clock_t d)
 {	
 	std::clock_t start = std::clock();   
-	t->cost = map->getTourDistance(t);	
+	initTour->cost = map->getTourDistance(initTour);	
 		
-	int N = t->path.size();
-	if(tabu_max > N/2)
-		tabu_max = N/2;
+	int N = initTour->path.size();
+	if(tabu_delay > N/2)
+		tabu_delay = N/2;
 
+	tour* bestTour = new tour(initTour->path);
+	bestTour->cost = initTour->cost;
+
+	tour* t = new tour(initTour->path);
+	t->cost = initTour->cost;
 
 	int counter = 0;	
-	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+	//std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
+	deadline = d;
 	do
 	{
 		counter++;
-		
-		if(!findNewTour(t))
-		{		
-			if(tabu_order.size() == 0)			
-				break;
+	//	cout << "findNewTour - START Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
+		bool foundTour = findNewTour(t);
+	//	cout << "findNewTour - END Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
+		if(!foundTour)
+		{
+			if(tabu_list.size() == 0)			
+			{
+				delete t;
+				return bestTour;
+			}
 			else
 			{
-				// Initiate default aspiration behavior
 				expire_move();
-
-				// Copy tour and fetch an edge to swap
-				//int count = t->path.size();
-				/*vector<int> tmp(count, count);
-				tour* newTour = new tour(tmp);
-				for(int i = 0; i < count; i++)
-				{
-					newTour->path[i] = t->path[i];
-				}*/
-				
-				/*double diff = 0.0;
-				pair<int, int> edge;
-				do
-				{
-					edge = popTabu();
-					diff = getNewCost(t, edge.first, edge.second);
-				} while(tabu_order.size() != 0);*/
+				continue;
 			}
 		}
-		while(tabu_order.size() > tabu_max)
+		double newCost = t->cost;
+		if(newCost < bestTour->cost)
 		{
-			expire_move();
+			//cout << endl;
+	 		//cout << "OLD cost=" << bestTour->cost << " vs new cost=" << newCost << endl;
+		//	delete bestTour;
+			bestTour->path = t->path;//new tour(t->path);
+			bestTour->cost = newCost;			
+		//bestTour = t;
+			//cout << "NEW SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
+			//cout << "Current Tabu: {";
+			/*for(auto itr = tabu_list.cbegin(); itr != tabu_list.end(); ++itr)
+			{
+				edge e = *(itr);
+				cout << "(" << e.c1 << ", ";
+				cout << e.c2 << "), ";
+			}
+			cout << "}" << endl;*/
 		}
-		
-		//~ cout << t->cost << endl;
-		
-		//~ if(counter % 2 == 0)
-		//~ {
-			//~ tabu_list.clear();
-		//~ }
+		else
+		{
+			//cout << "NO SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
+		}
+		expire_move();
+	//	cout << "Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
 	} while(deadline > std::clock());
-	
-	//~ cout << "Attempts: " << counter << endl;
-	
-	return t;	
+	//cout << "TABUUUU-Attempts: " << counter << endl;
+	if(t->cost < bestTour->cost)
+	{
+		delete bestTour;
+		return t;
+	}
+	return bestTour;	
 }
 
 bool TabuSearch::findNewTour(tour* t)
 {
-	// Tour size
+// Tour size
 	int count = t->path.size();
-	// Some initial values
+// Some initial values
 	int cIndex1 = -1;
 	int cIndex2 = -1;
-	double bestDiff = 0.0;
-	//bool changed = false;
+	double bestDiff = MAX_INT;
+	bool first = false;
 
 	int last_candidate = -1;
 	for(int i = 1; i < count; i++) 
@@ -240,31 +247,21 @@ bool TabuSearch::findNewTour(tour* t)
 		for(int j = i+1; j < count; j++) 
 		{
 			int candidate = t->path[j];
-
 			if(isTabu(t->path[i], candidate))
 			{
 				continue;
 			}
 			double diff = getNewCost(t, i, j);
-			//if(new_tour->cost < tour_cost)
-			if(diff < bestDiff)
+			if(diff < bestDiff)//bestDiff || first)//&& abs(diff - bestDiff) > graunularity )
 			{
+				first = false;
 				cIndex1 = i;
 				cIndex2 = j;
 				bestDiff = diff;
-				//~ tour* new_tour = flip(t, i, j);
-				/*swap(t, i, j, diff);
-				changed = true;
-				tabu_move(candidate);
-				tabu_move(t->path[i]);
-				while(tabu_list.size() > tabu_max)
-				{
-					expire_move();
-				}*/
 			}
 		}
 	}
-	if(bestDiff != 0.0)
+	if(cIndex1 != -1)//bestDiff != MAX_INT)
 	{
 		swap(t, cIndex1, cIndex2, bestDiff);
 		tabu_move(t->path[cIndex1], t->path[cIndex2]);
@@ -274,6 +271,4 @@ bool TabuSearch::findNewTour(tour* t)
 	{
 		return false;
 	}
-	
-	//~ return t;
 }
