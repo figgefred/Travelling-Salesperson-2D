@@ -44,8 +44,8 @@ int main()
 	}
 
 	map = new Map(cities);
-	LocalSearch* local_search = new TabuSearch(map);
-	//~ LocalSearch* local_search = new TwoOpt(map);
+	//LocalSearch* local_search = new TabuSearch(map);
+	LocalSearch* local_search = new TwoOpt(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
 	// christofides(map);
 	

@@ -6,16 +6,14 @@
 #include <unordered_set>
 #include <list>
 
-/*struct edge {
+struct edge {
 	int c1;
 	int c2;
-	double distance;
 
-	edge(int city1, int city2, double d)
+	edge(int city1, int city2)
 	{
 		c1 = city1;
 		c2 = city2;
-		distance = d;
 	}
 
     bool operator == ( const edge& e ) const
@@ -31,9 +29,9 @@ struct edgehash
     {
 
  		// Lets hope the cast still allows us to avoid hash collisions
-        return e.c1 * e.c2 * ((int)e.distance);
+        return e.c1 * e.c2;
     }
-};*/
+};
 
 class TabuSearch : public LocalSearch
 {
@@ -41,7 +39,8 @@ class TabuSearch : public LocalSearch
 		int tabu_dim;
 		int** tabu_record;
 		//std::unordered_set<edge, edgehash> tabu_list;
-		std::list<int> tabu_order;
+		std::list<edge> tabu_list;
+		//std::vector<int> tabu_count;
 		
 		tour* flip(tour*, int, int );
 		tour* swap(tour* t, int from, int to, double cost);
@@ -49,7 +48,6 @@ class TabuSearch : public LocalSearch
 		bool findNewTour(tour*);
 		
 		inline bool isTabu(int, int);
-		std::pair<int, int> popTabu();
 		void tabu_move(int, int);
 		void expire_move();
 
