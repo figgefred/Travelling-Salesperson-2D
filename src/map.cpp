@@ -15,7 +15,6 @@ Map::Map (vector<coordinate*>* cities)
 	setDistanceMatrix(cities);
 	cities->clear();		
 	delete cities; // Frigör coordinates etc, vi behöver space för neighbourmaps? :/
-	setNeighbourMap();
 }
 
 Map::~Map()
@@ -64,41 +63,7 @@ void Map::setDistanceMatrix(std::vector<coordinate*>* cities)
 	}
 }
 
-void Map::setNeighbourMap() {
-	// Adjancency lists...
-	vector<double> distances; // = new vector<double>();	// Allokera på heap!!
-	//~ distances->reserve(dim);
-	double furthestClosestNeighbour = 0.0D;
-	int pos = (dim > ADJACENCY_LIST_SIZE) ?  ADJACENCY_LIST_SIZE - 2 : dim - 2;
-	
-	for(int i = 0; i < dim; ++i) {		
-		for(int j = 0; j < dim; ++j) {
-			if(i == j) continue;
-			distances.push_back(distance_mat[i][j]);
-		}
-		
-		sort(distances.begin(), distances.end());
-		
-			
-		//~ cout << "dim/pos:" << dim << " " << pos << endl;
-		furthestClosestNeighbour = distances.at(pos);			
-		distance_mat[i][i] = furthestClosestNeighbour;
-		distances.clear();
-		
-		//~ for(int j = 0; j < dim; j++)
-			//~ if(i != j && distance_mat[i][j] <= furthestClosestNeighbour)
-				//~ closest_neighbours->push_back(j);
-				//~ 
-		//~ neighbourMap.push_back(closest_neighbours);
-		
-		//~ cout << "len: " << closest_neighbours.size() << " ";
-		//~ for ( auto it = closest_neighbours.begin(); it != closest_neighbours.end(); ++it )
-			//~ std::cout << " " << *it;
-		//~ 
-	}
-	
-	//~ delete distances;
-}
+
 
 double Map::getTourDistance(vector<int>& nodes)
 {

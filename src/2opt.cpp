@@ -3,11 +3,40 @@
 #include "map.h"
 #include <iostream>
 #include <ctime>
+#include <algorithm>
 
 using namespace std;
 
 TwoOpt::TwoOpt(Map* map) {
 	this->map = map;	
+	
+	#ifdef USE_ADJACENCY
+	setAdjacencyThresholds();
+	#endif
+}
+
+void TwoOpt::setAdjacencyThresholds() {
+	// Adjancency lists...
+	vector<double> distances; // = new vector<double>();	
+	
+	int dim = map->getDimension();
+	int pos = (dim > ADJACENCY_LIST_SIZE) ?  ADJACENCY_LIST_SIZE - 2 : dim - 2;	
+	this->adjacencyThresholds = new double[dim];
+	
+	for(int i = 0; i < dim; ++i) {		
+		for(int j = 0; j < dim; ++j) {
+			if(i == j) continue;
+			distances.push_back(map->getDistance(i,j));
+		}
+		
+		sort(distances.begin(), distances.end());		
+		
+		this->adjacencyThresholds[i] = distances.at(pos);					
+		
+		distances.clear();
+	}
+	
+	//~ delete distances;
 }
 
 // From wikipedia psuedocode:
@@ -56,13 +85,16 @@ bool TwoOpt::findNewTour(tour* t, std::clock_t deadline) {
 	bool changed = false;
 	for(unsigned int i = 1; i < size && std::clock() < deadline; ++i)
 	{	
+		#ifdef USE_ADJACENCY
 		int city = t->path[i];
-		double maxAllowedDist = map->getDistance(city,city);	
-		
+		double maxAllowedDist = adjacencyThresholds[city];	
+		#endif
 		for(unsigned int j = i+1; j < size; ++j)
-		{			
+		{		
+			#ifdef USE_ADJACENCY	
 			if(maxAllowedDist < map->getDistance(city,t->path[j]))
 				continue;
+			#endif
 				
 			double cost = getNewCost(t, i, j);
 			
@@ -83,13 +115,17 @@ bool TwoOpt::findBestNewTour(tour* t, std::clock_t deadline) {
 	unsigned int size = t->path.size();
 	for(unsigned int i = 1; i < size && std::clock() < deadline; ++i)
 	{	
+		#ifdef USE_ADJACENCY
 		int city = t->path[i];
-		double maxAllowedDist = map->getDistance(city,city);
+		double maxAllowedDist = adjacencyThresholds[city];
+		#endif
 		
 		for(unsigned int j = i+1; j < size; ++j)
-		{				
+		{			
+			#ifdef USE_ADJACENCY	
 			if(maxAllowedDist < map->getDistance(city,t->path[j]))
 				continue;
+			#endif
 			
 			double cost = getNewCost(t, i, j);
 			
@@ -110,8 +146,6 @@ bool TwoOpt::findBestNewTour(tour* t, std::clock_t deadline) {
 
 tour* TwoOpt::getBetterTour(tour* t, std::clock_t deadline)
 {	
-	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
-	
 	int i = 0;
 	t->cost = map->getTourDistance(t);		
 	bool timedout = false;

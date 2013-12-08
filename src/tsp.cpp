@@ -47,7 +47,6 @@ int main()
 	LocalSearch* local_search = new TwoOpt(map);
 	//~ LocalSearch* local_search = new SimulatedAnnealing(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
-	//~ // christofides(map);	
 	
 	tour* best_tour = NULL;
 	double bestcost = 0;
