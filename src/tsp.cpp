@@ -48,36 +48,37 @@ int main()
 	//~ LocalSearch* local_search = new SimulatedAnnealing(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
 	
-	tour* best_tour = NULL;
-	double bestcost = 0;
+	tour* best_tour = new tour;
+	best_tour->cost = -1;
 	
 	int i = 0;
-	//~ for(; std::clock() < deadline; i++)
-	//~ {
+	int improvements = 0;
+	for(; std::clock() < deadline; i++)
+	{
 		//~ i = i % map->getDimension();
 		
 		// Startgissning
-		tour* curr_tour = greedy->naiveTspPath(map, i);
+		tour* curr_tour = greedy->naiveTspPath(map, rand() % map->getDimension());
 		//~ tour* curr_tour = approxTSP(map);
+		
 		// Förbättring
 		curr_tour = local_search->getBetterTour(curr_tour, deadline);
 		
 		//~ cout << i << " " << curr_tour->cost << endl;
+		cout << curr_tour->cost << endl;
 		
-		if(best_tour == NULL || curr_tour->cost < bestcost) {
-			bestcost = curr_tour->cost;
-			best_tour = curr_tour;			
-		}
-		//~ 
+		if(best_tour->cost < 0 || curr_tour->cost < best_tour->cost) {
+			best_tour->path = curr_tour->path;			
+			best_tour->cost = curr_tour->cost;
+			improvements++;
+			
+		}		
 		
-	//~ }
-	
-	
+		delete curr_tour;
+	}
+	cout << improvements << endl;
 	// Output.
-	printTour(best_tour);
-	
-	//~ cout << "Runs: " << i << endl;
-	
+	//~ printTour(best_tour);
 	
 	// Free resources
 	delete local_search;

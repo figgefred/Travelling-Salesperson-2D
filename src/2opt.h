@@ -12,7 +12,7 @@ class TwoOpt : public LocalSearch
 {	
 	protected: 
 		double* adjacencyThresholds;
-		const static bool findBest = true;
+		const static bool findBest = false;
 		
 		void swap(tour* t, int from, int to, double cost);
 		// what is the cost if we were to swap?

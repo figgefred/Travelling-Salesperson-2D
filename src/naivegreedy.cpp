@@ -21,7 +21,7 @@ tour* NaiveGreedy::naiveTspPath(Map* map, int startnode) {
 		path.push_back(0);
 	}
 	used[0] = true;
-	path[0] = 0;	
+	path[0] = startnode;	
 	//~ double totalcost = 0.0;
 	
 	for(int i = 1; i < N; i++)

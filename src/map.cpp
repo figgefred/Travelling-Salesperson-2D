@@ -32,6 +32,10 @@ double Map::getDistance(int i, int j)
 	return distance_mat[i][j];
 }
 
+double* Map::getDistanceRow(int i) {
+	return distance_mat[i];
+}
+
 int Map::getDimension()
 {
 	return dim;

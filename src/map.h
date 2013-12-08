@@ -20,6 +20,7 @@ class Map
 		//~ coordinate* getCityCoordinate(int);
 		double getTourDistance(std::vector<int>&);
 		double getTourDistance(tour* t);
+		double* getDistanceRow(int);
 
 
 };
