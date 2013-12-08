@@ -7,7 +7,7 @@
 #include <vector>
 
 #define USE_ADJACENCY
-#define ADJACENCY_LIST_SIZE 100
+#define ADJACENCY_LIST_SIZE 128
 
 class TwoOpt : public LocalSearch
 {	
