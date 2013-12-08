@@ -29,7 +29,7 @@ vector<coordinate*>* getCitiesFromSTDin();
 
 int main()
 {
-	std::clock_t deadline = std::clock() + 1.9*CLOCKS_PER_SEC;
+	std::clock_t deadline = std::clock() + 1.75*CLOCKS_PER_SEC;
 	vector<coordinate*>* cities = getCitiesFromSTDin();
 	if(cities->size() == 0)
 	{
@@ -43,14 +43,8 @@ int main()
 	}
 
 	map = new Map(cities);
-<<<<<<< HEAD
-	//LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
-=======
-	//~ LocalSearch* local_search = new TabuSearch(map);
-	LocalSearch* local_search = new TwoOpt(map);
-	//~ LocalSearch* local_search = new SimulatedAnnealing(map);
->>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
+	LocalSearch* local_search = new TabuSearch(map);
+	LocalSearch* fast_optimize = new TwoOpt(map);
 	NaiveGreedy* greedy = new NaiveGreedy;
 	//~ // christofides(map);	
 	
@@ -61,34 +55,52 @@ int main()
 	//~ for(; std::clock() < deadline; i++)
 	//~ {
 		//~ i = i % map->getDimension();
-		
+
 		// Startgissning
 		tour* curr_tour = greedy->naiveTspPath(map, i);
+
+		#ifdef DEBUG_TRACE
+			tour* greedyTour = greedy->naiveTspPath(map,i);
+			greedyTour->cost = curr_tour->cost;
+		#endif
+
+
 		//~ tour* curr_tour = approxTSP(map);
 		// Förbättring
+		curr_tour = fast_optimize->getBetterTour(curr_tour, deadline);
 		curr_tour = local_search->getBetterTour(curr_tour, deadline);
 		
 		//~ cout << i << " " << curr_tour->cost << endl;
 		
-		if(best_tour == NULL || curr_tour->cost < bestcost) {
+		/*if(best_tour == NULL || curr_tour->cost < bestcost) {
 			bestcost = curr_tour->cost;
 			best_tour = curr_tour;			
-		}
+		}*/
 		//~ 
 		
 	//~ }
 	
-	
 	// Output.
-	printTour(best_tour);
+	printTour(curr_tour);
+
+	#ifdef DEBUG_TRACE
+		std::clock_t d = std::clock() + 1.9*CLOCKS_PER_SEC;
+		cout << "Greedy-cost: " << greedyTour->cost << endl;
+		tour* tmp = fast_optimize->getBetterTour(greedyTour, d);
+		cout << "2Opt-cost: " << tmp->cost << endl;
+		cout << "TABU-cost: " << curr_tour->cost << endl;
+		delete tmp;
+	#endif
 	
 	//~ cout << "Runs: " << i << endl;
 	
 	
 	// Free resources
 	delete local_search;
+	delete fast_optimize;
+	delete greedy;
 	delete map;
-	
+	delete curr_tour;
 }
 
 vector<coordinate*>* getCitiesFromSTDin()

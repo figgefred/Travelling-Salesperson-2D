@@ -16,7 +16,7 @@
 using namespace std;
 
 int tabu_delay = 5;
-std::clock_t deadline = std::clock() + 1.7*CLOCKS_PER_SEC;
+std::clock_t deadline;
 const int MAX_INT = 2147483647;
 const double graunularity = 0.00001;
 
@@ -50,7 +50,7 @@ void TabuSearch::tabu_move(int c1, int c2)
 {
 	tabu_record[c1][c2] += tabu_delay;
 	tabu_record[c2][c1] += tabu_delay;
-	tabu_list.push_back(edge(c1, c2));
+	tabu_list.push_back(city_edge(c1, c2));
 }
 
 bool TabuSearch::isTabu(int c1, int c2)
@@ -60,10 +60,10 @@ bool TabuSearch::isTabu(int c1, int c2)
 
 void TabuSearch::expire_move()
 {
-	vector<edge> toRemove;
+	vector<city_edge> toRemove;
 	for(auto itr = tabu_list.cbegin(); itr != tabu_list.cend(); ++itr)
 	{
-		edge e = *(itr);
+		city_edge e = *(itr);
 		tabu_record[e.c1][e.c2] -= 1;
 		tabu_record[e.c2][e.c1] -= 1;
 		if(tabu_record[e.c1][e.c2] == 0)
@@ -159,11 +159,7 @@ double TabuSearch::getNewCost(tour* t, int i1, int i2) {
 
 // Public
 
-<<<<<<< HEAD
-tour* TabuSearch::getBetterTour(tour* initTour)
-=======
-tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
->>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
+tour* TabuSearch::getBetterTour(tour* initTour, std::clock_t d)
 {	
 	std::clock_t start = std::clock();   
 	initTour->cost = map->getTourDistance(initTour);	
@@ -179,11 +175,8 @@ tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
 	t->cost = initTour->cost;
 
 	int counter = 0;	
-<<<<<<< HEAD
 	//std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
-=======
-	//~ std::clock_t deadline = std::clock() + 1.5*CLOCKS_PER_SEC;
->>>>>>> 7e384cd90fc900e0f94daa48f8e31e197e82b736
+	deadline = d;
 	do
 	{
 		counter++;
@@ -194,12 +187,8 @@ tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
 		{
 			if(tabu_list.size() == 0)			
 			{
-			//	delete t;
-				if(t->cost == bestTour->cost)
-					return bestTour;
-				t->path = bestTour->path;
-				t->cost = bestTour->cost;
-				continue;
+				delete t;
+				return bestTour;
 			}
 			else
 			{
@@ -216,7 +205,7 @@ tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
 			bestTour->path = t->path;//new tour(t->path);
 			bestTour->cost = newCost;			
 		//bestTour = t;
-			cout << "NEW SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
+			//cout << "NEW SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
 			//cout << "Current Tabu: {";
 			/*for(auto itr = tabu_list.cbegin(); itr != tabu_list.end(); ++itr)
 			{
@@ -228,17 +217,16 @@ tour* TabuSearch::getBetterTour(tour* t, std::clock_t deadline)
 		}
 		else
 		{
-			cout << "NO SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
+			//cout << "NO SOLUTION cost=" << t->cost << "tabu_count=" << tabu_list.size() << endl;
 		}
 		expire_move();
 	//	cout << "Time: " << std::clock()/((double)CLOCKS_PER_SEC) << endl;
 	} while(deadline > std::clock());
-		
 	//cout << "TABUUUU-Attempts: " << counter << endl;
 	if(t->cost < bestTour->cost)
 	{
 		delete bestTour;
-		bestTour = t;
+		return t;
 	}
 	return bestTour;	
 }

@@ -7,17 +7,17 @@
 #include <list>
 #include <ctime>
 
-struct edge {
+struct city_edge {
 	int c1;
 	int c2;
 
-	edge(int city1, int city2)
+	city_edge(int city1, int city2)
 	{
 		c1 = city1;
 		c2 = city2;
 	}
 
-    bool operator == ( const edge& e ) const
+    bool operator == ( const city_edge& e ) const
     {
         return ( ( c1 == e.c1 ) && ( c2 == e.c2 ) ) || ( ( c1 == e.c2 ) && ( c2 == e.c1 ) );
     }
@@ -26,7 +26,7 @@ struct edge {
 
 struct edgehash
 {
-    std::size_t operator () ( const edge& e ) const
+    std::size_t operator () ( const city_edge& e ) const
     {
 
  		// Lets hope the cast still allows us to avoid hash collisions
@@ -40,7 +40,7 @@ class TabuSearch : public LocalSearch
 		int tabu_dim;
 		int** tabu_record;
 		//std::unordered_set<edge, edgehash> tabu_list;
-		std::list<edge> tabu_list;
+		std::list<city_edge> tabu_list;
 		//std::vector<int> tabu_count;
 		
 		tour* flip(tour*, int, int );
