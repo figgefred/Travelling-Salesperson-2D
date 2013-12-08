@@ -63,8 +63,8 @@ int main()
 		//~ i = i % map->getDimension();
 		
 		// Startgissning
-		//~ tour* curr_tour = greedy->naiveTspPath(map, i);
-		tour* curr_tour = approxTSP(map);
+		tour* curr_tour = greedy->naiveTspPath(map, i);
+		//~ tour* curr_tour = approxTSP(map);
 		// Förbättring
 		curr_tour = local_search->getBetterTour(curr_tour, deadline);
 		
