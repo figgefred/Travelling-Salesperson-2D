@@ -51,6 +51,7 @@ class TabuSearch : public LocalSearch
 		inline bool isTabu(int, int);
 		void tabu_move(int, int);
 		void expire_move();
+		void expire_move(int, int);
 
 	public:
 		TabuSearch(Map*);
